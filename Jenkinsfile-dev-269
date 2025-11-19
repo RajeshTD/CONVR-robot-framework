@@ -1,0 +1,774 @@
+pipeline {
+    agent any
+
+    triggers {
+        cron('45 21 * * 0-4') // 11:55 AM CDT
+    }
+
+    parameters {
+        choice(
+            name: 'ENVIRONMENT',
+            choices: ['dev', 'staging', 'prod'],
+            description: 'Select the environment type'
+        )
+        choice(
+            name: 'DEV_NUMBER',
+            choices: ['269','270', '264'],
+            description: 'Dev environment number'
+        )
+        string(
+            name: 'INCLUDE_TYPE',
+            defaultValue: '--include',
+            description: 'Type of argument to pass to robot (e.g., --include, --test, --file)'
+        )
+        text(
+            name: 'INCLUDE_VALUES',
+            defaultValue: 'E2E-WithoutSov,E2E-WithSov,E2E-Email_Verification,E2E-SanctionScreening,E2E-Referral,E2E-LostSubmission,E2E-NotTaken,E2E-Reject,E2E-Email_Submission,E2E-Accord127-withAttachment',
+            description: 'Values for the argument (one per line or comma-separated). For tags: smoke,regression,smoke\nregression'
+        )
+        choice(
+            name: 'ENABLE_SCREENSHOT',
+            choices: ['false', 'true'],
+            description: 'Enable or disable screenshots (true/false)'
+        )
+        string(
+            name: 'BRANCH',
+            defaultValue: 'develop/test',
+            description: 'The git branch to build'
+        )
+    }
+
+    environment {
+        DOCKER_IMAGE = 'robot-tests-runner'
+        // Environment-specific URLs
+        DEV_URL = "https://dev-${params.DEV_NUMBER}.convr.in/#!/admin/users/list"
+        STAGING_URL = 'https://staging.convr.io/#!/admin/users/list'
+        PROD_URL = 'https://prod.convr.in/#!/admin/users/list'
+        
+        // Set the actual URL based on environment selection
+        ENV_URL = "${params.ENVIRONMENT == 'dev' ? DEV_URL : params.ENVIRONMENT == 'staging' ? STAGING_URL : PROD_URL}"
+        ENABLE_SCREENSHOT = "${params.ENABLE_SCREENSHOT}"
+        ENV_DISPLAY = "${params.ENVIRONMENT == 'dev' ? 'dev-' + params.DEV_NUMBER + '-build-' + env.BUILD_NUMBER : params.ENVIRONMENT == 'staging' ? 'staging-build-' + env.BUILD_NUMBER : 'prod-build-' + env.BUILD_NUMBER}"
+    }
+
+    stages {
+        stage('Schedule or Manual') {
+    steps {
+        script {
+            def isScheduled = currentBuild.getBuildCauses('hudson.triggers.TimerTrigger$TimerTriggerCause').size() > 0
+            if (isScheduled) {
+                currentBuild.displayName = "Schedule Run (dev-269) (#${env.BUILD_NUMBER})"
+
+                // Get dev numbers from your parameter or keep hardcoded
+                def devNumbers = ['269']  // or pass via parameter
+
+                // Get tags from INCLUDE_VALUES parameter (comma or newline separated)
+                def tagList = params.INCLUDE_VALUES.split(/[,\n]/).collect { it.trim() }.findAll { it }
+
+                devNumbers.each { devNum ->
+                def branchName = 'develop/test'
+    tagList.each { tagValue ->
+        echo "Running scheduled build for dev-${devNum}, tag: ${tagValue}"
+
+        catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+            build job: env.JOB_NAME, parameters: [
+                string(name: 'DEV_NUMBER', value: devNum),
+                string(name: 'INCLUDE_TYPE', value: params.INCLUDE_TYPE),
+                [$class: 'TextParameterValue', name: 'INCLUDE_VALUES', value: tagValue],
+                string(name: 'BRANCH', value: branchName),
+                string(name: 'ENVIRONMENT', value: params.ENVIRONMENT),
+                string(name: 'ENABLE_SCREENSHOT', value: 'false')
+            ], wait: true
+        }
+    }
+}
+
+
+                currentBuild.result = 'SUCCESS'
+                return
+            } else {
+                // Manual run, just set display name
+                currentBuild.displayName = "dev-${params.DEV_NUMBER}-build-${env.BUILD_NUMBER} [${params.INCLUDE_VALUES}]"
+            }
+
+            echo "Pipeline running for: ${currentBuild.displayName} (Jenkins Build Number: ${env.BUILD_NUMBER})"
+        }
+    }
+}
+
+        stage('Display Build Info') {
+            steps {
+                script {
+                    def isScheduled = currentBuild.getBuildCauses('hudson.triggers.TimerTrigger$TimerTriggerCause').size() > 0
+                    def prefix = isScheduled ? 'schedule-run-' : ''
+                    def tagList = params.INCLUDE_VALUES.split(/[,\n]/).collect { it.trim() }.findAll { it }
+                    def tagsForDisplay = ""
+                    tagList.eachWithIndex { tag, idx ->
+                        tagsForDisplay += tag
+                        if (idx < tagList.size() - 1) tagsForDisplay += ", "
+                    }
+
+                    // Determine env display name
+            def envDisplayName = params.ENVIRONMENT == 'dev' ? "dev-${params.DEV_NUMBER}" :
+                                 params.ENVIRONMENT == 'staging' ? 'staging' :
+                                 'prod'
+
+            currentBuild.displayName = "${prefix}${envDisplayName}-build-${env.BUILD_NUMBER} [Tags: ${tagsForDisplay}] (#${env.BUILD_NUMBER})"
+            echo "Pipeline running for: ${currentBuild.displayName} (Jenkins Build Number: ${env.BUILD_NUMBER})"
+                }
+            }
+        }
+        stage('Checkout') {
+            when {
+                expression {
+                    // Only run if NOT scheduled
+                    currentBuild.getBuildCauses('hudson.triggers.TimerTrigger$TimerTriggerCause').size() == 0
+                }
+            }
+            steps {
+                git url: 'git@dev-gitlab.convr.in:d3-test/robotframework-browser.git', branch: "${params.BRANCH}"
+            }
+        }
+
+        stage('Build Docker Image') {
+            when {
+                expression {
+                    // Only run if NOT scheduled
+                    currentBuild.getBuildCauses('hudson.triggers.TimerTrigger$TimerTriggerCause').size() == 0
+                }
+            }
+            steps {
+                script {
+                    // Build image with a unique tag per branch/build to avoid collisions across concurrent jobs
+                    def sanitizedBranch = (params.BRANCH ?: 'unknown').replaceAll(/[^a-zA-Z0-9_.-]/, '-')
+                    env.IMAGE_TAG = "${sanitizedBranch}-${env.BUILD_NUMBER}"
+                    docker.build("${env.DOCKER_IMAGE}:${env.IMAGE_TAG}", '.')
+                }
+            }
+        }
+
+        stage('Run Tests') {
+            when {
+                expression {
+                    // Only run if NOT scheduled
+                    currentBuild.getBuildCauses('hudson.triggers.TimerTrigger$TimerTriggerCause').size() == 0
+                }
+            }
+            steps {
+                script {
+                    sh "sudo rm -rf results1 || true && mkdir -p results1"
+                    script {
+                        // Parse multiple include values
+                        def includeArgs = ""
+                        if (params.INCLUDE_VALUES) {
+                            def values = params.INCLUDE_VALUES.split(/[,\n]/).collect { it.trim() }.findAll { it }
+                            values.each { value ->
+                                includeArgs += " ${params.INCLUDE_TYPE} ${value}"
+                            }
+                        }
+                        // Use the uniquely tagged image for this branch/build
+                        def sanitizedBranch = (params.BRANCH ?: 'unknown').replaceAll(/[^a-zA-Z0-9_.-]/, '-')
+                        def imageTag = env.IMAGE_TAG ?: "${sanitizedBranch}-${env.BUILD_NUMBER}"
+
+                        sh """
+                            docker run --rm --shm-size=10g \
+                            -v ${pwd()}/results1:/robot-tests/results \
+                            -e ENV_URL=${env.ENV_URL} \
+                            -e ENABLE_SCREENSHOT=${env.ENABLE_SCREENSHOT} \
+                            ${env.DOCKER_IMAGE}:${imageTag} \
+                            ${includeArgs}
+                        """
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            script {
+                def isScheduled = currentBuild.getBuildCauses('hudson.triggers.TimerTrigger$TimerTriggerCause').size() > 0
+                if (!isScheduled) {
+                    // Only run post actions for non-scheduled builds
+                    archiveArtifacts artifacts: 'results1/**/*', fingerprint: true
+
+                    robot(
+                        outputPath: "results1",
+                        passThreshold: 90.0,
+                        unstableThreshold: 70.0,
+                        disableArchiveOutput: false,
+                        outputFileName: "output.xml",
+                        logFileName: 'log.html',
+                        reportFileName: 'report.html',
+                        countSkippedTests: true,
+                        otherFiles: 'screenshot-*.png'
+                    )
+                    // Debug: List directory and show output.xml
+                    sh 'ls -l results1'
+                    sh 'cat results1/output.xml || echo "output.xml not found"'
+                    // Parse test results and write summary (corrected argument usage)
+                    sh 'python3 parse_robot_results.py results1/output.xml results1/test_summary.json'
+                    // Show parser output
+                    sh 'cat results1/test_summary.json'
+                    // Zip the report directory
+                    sh 'cd results1 && zip -r report.zip .'
+
+                    // Read summary from file and send email using CPS-safe readJSON
+                    def summary = readJSON file: 'results1/test_summary.json'
+                    
+                    // Debug: Show what's in the summary
+                    echo "DEBUG: Summary content: ${summary}"
+                    if (summary.failedTests) {
+                        echo "DEBUG: Failed tests found: ${summary.failedTests.size()}"
+                        summary.failedTests.each { test ->
+                            echo "DEBUG: Failed test - Name: ${test.name}, Reason: ${test.reason}"
+                        }
+                    } else {
+                        echo "DEBUG: No failedTests array found in summary"
+                    }
+                    
+ // ✅ Build scenario details dynamically
+ def selectedTags = params.INCLUDE_VALUES.split(/[,\n]/).collect { it.trim() }.findAll { it }
+ def submissionIds = ""
+if (summary.submissionIds) {
+    submissionIds = summary.submissionIds.collect { key, value -> "${key} = ${value}" }.join('\n')
+} else {
+    submissionIds = "No submission IDs found."
+}
+                def scenarioDetails = ""
+                selectedTags.each { tag ->
+                if (tag.contains("E2E-WithoutSov")) {
+                    scenarioDetails += """
+📝 E2E Test Scenarios – MSIG New Submission (Acord-125)
+-------------------------------------------------------
+
+**Overview:**
+End-to-End flow covering user journey from **Stage 1 (In Draft)** to **Stage 8 (Issued)** for New Business Submission with validations as per test cases.
+
+📂 **Reference Test Cases:**
+[SharePoint Link](https://d3core.sharepoint.com/:x:/r/sites/d3Product/_layouts/15/Doc.aspx?sourcedoc=%7B2C8450C5-0B85-4C65-82B8-F0546599570D%7D&file=End%20to%20End%20Manual%20Testing%20Test%20Cases-%20New%20Business%20Submission.xlsx&action=default&mobileredirect=true)
+
+---
+
+### 🔹 Stage-wise Test Cases
+
+1. **TC_E2E_001 – Stage 1 (In Draft)**
+   * Create new submission (Acord-125).
+   * Perform validations as per test case.
+
+2. **TC_E2E_007 – Stage 2 (Cleared)**
+   * Continue with the same Acord-125 submission.
+   * Upload **SOV** and **LR file**.
+   * Validate as per test case.
+
+3. **TC_E2E_011 – Stage 3 (Under Review)**
+   * From the same Acord-125 submission, create **Child Submission**.
+   * Add **SOV** and **LR file** (linked with Based on first LOB submission).
+   * Validate as per test case.
+
+4. **TC_E2E_017 – Stage 4 (Quoted)**
+   * Add **SOV** and **LR file** for Based on first LOB submission.
+   * Validate as per test case.
+
+5. **TC_E2E_023 – Stage 5 (Bind)**
+   * Add **SOV** and **LR file** for Based on first LOB submission.
+   * Validate as per test case.
+
+6. **TC_E2E_024 – Stage 6 (Bound)**
+   * Add **SOV** and **LR file** for Based on first LOB submission.
+   * Validate as per test case.
+
+7. **TC_E2E_025 – Stage 7 (Booked)**
+   * Add **SOV** and **LR file** for Based on first LOB submission.
+   * Validate as per test case.
+
+8. **TC_E2E_026 – Stage 8 (Issued)**
+   * Add **SOV** and **LR file** for Based on first LOB submission.
+   * Validate as per test case.
+"""
+                } else if (tag.contains("E2E-NotTaken")) {
+                    scenarioDetails += """
+📝 E2E Test Scenarios – MSIG New Submission (Acord-125)
+-------------------------------------------------------
+
+**Overview:**  
+End-to-End flow covering user journey from **Stage 1 (In Draft)** to **Stage 4 (Quoted)** and verify the user is able to do Not Taken in 4th stage.  
+
+📂 **Reference Test Cases:**  
+[SharePoint Link](https://d3core.sharepoint.com/:x:/r/sites/d3Product/_layouts/15/Doc.aspx?sourcedoc=%7B2C8450C5-0B85-4C65-82B8-F0546599570D%7D&file=End%20to%20End%20Manual%20Testing%20Test%20Cases-%20New%20Business%20Submission.xlsx&action=default&mobileredirect=true)
+
+### 🔹 Stage-wise Test Cases
+1. **TC_E2E_022 – Stage 1 (In Draft) to Stage 4 (Quoted)**  
+   * Create new submission (Acord-125).  
+   * Perform validations as per test cases upto Stage 4.  
+   * Ensure that user is able to use the **Not Taken** option.  
+"""
+                } else if (params.INCLUDE_VALUES.contains("E2E-WithSov")) {
+                    scenarioDetails += """
+📝 E2E Test Scenarios – MSIG New Submission (Acord-125, SOV & LR)
+-------------------------------------------------------
+
+**Overview:**
+End-to-End flow covering user journey from **Stage 1 (In Draft)** to **Stage 8 (Issued)** with validations as per test cases.
+
+📂 **Reference Test Cases:**
+[SharePoint Link](https://d3core.sharepoint.com/:x:/r/sites/d3Product/_layouts/15/Doc.aspx?sourcedoc=%7B2C8450C5-0B85-4C65-82B8-F0546599570D%7D&file=End%20to%20End%20Manual%20Testing%20Test%20Cases-%20New%20Business%20Submission.xlsx&action=default&mobileredirect=true)
+
+### 🔹 Stage-wise Test Cases
+
+1. **TC_E2E_003 – Stage 1 (In Draft)**
+   * Create new submission (Acord-125, SOV & LR).
+   * Perform validations as per test cases.
+
+2. **TC_E2E_008 – Stage 2 (Cleared)**
+   * Continue with the above submission.
+   * User adds SOV and LR file and validates as per test case.
+
+3. **TC_E2E_012 – Stage 3 (Under Review)**
+   * With the above submission, create a child submission.
+   * Add SOV and LR file in both parent & child submission.
+   * Validate as per test case.
+
+4. **TC_E2E_018 – Stage 4 (Quoted)**
+   * Continue with the above submission.
+   * User adds SOV and LR file with Based on first LOB submission.
+   * Validate as per test case.
+
+5. **TC_E2E_027 – Stage 5 (Bind)**
+   * Continue with the above submission.
+   * User adds SOV and LR file with Based on first LOB submission.
+   * Validate as per test case.
+
+6. **TC_E2E_028 – Stage 6 (Bound)**
+   * Continue with the above submission.
+   * User adds SOV and LR file with Based on first LOB submission.
+   * Validate as per test case.
+
+7. **TC_E2E_029 – Stage 7 (Booked)**
+   * Continue with the above submission.
+   * User adds SOV and LR file with Based on first LOB submission.
+   * Validate as per test case.
+
+8. **TC_E2E_030 – Stage 8 (Issued)**
+   * Continue with the above submission.
+   * User adds SOV and LR file with Based on first LOB submission.
+   * Validate as per test case.
+"""
+                }  else if (tag.contains("E2E-Reject")) {
+                    scenarioDetails += """
+📝 E2E Test Scenarios – MSIG New Submission (Acord-125)
+-------------------------------------------------------
+
+**Overview:**
+End-to-End flow covering user journey from **Stage 1 (In Draft)** to **Stage 3 (Under Review)** for New Business Submission with validations as per test cases.
+
+📂 **Reference Test Cases:**
+[SharePoint Link](https://d3core.sharepoint.com/:x:/r/sites/d3Product/_layouts/15/Doc.aspx?sourcedoc=%7B2C8450C5-0B85-4C65-82B8-F0546599570D%7D&file=End%20to%20End%20Manual%20Testing%20Test%20Cases-%20New%20Business%20Submission.xlsx&action=default&mobileredirect=true)
+
+---
+
+### 🔹 Stage-wise Test Cases
+
+1. **TC_E2E_002 – Stage 1 (In Draft)**
+   * Create new submission (Acord-125).
+   * Perform validations as per test cases.
+   * Ensure user is able to **Reject** and **Reactivate** in Stage 1.
+
+2. **TC_E2E_009 – Stage 2 (Cleared)**
+   * Continue with the same Acord-125 submission.
+   * Upload **SOV** and **LR file**.
+   * Validate as per test case.
+   * Ensure user is able to **Reject** and **Reactivate** in Stage 2.
+
+3. **TC_E2E_013 – Stage 3 (Under Review)**
+   * From the same Acord-125 submission, create **Child Submission**.
+   * Add **SOV** and **LR file** (linked with Based on first LOB submission).
+   * Validate as per test case.
+   * Ensure user is able to **Reject** and **Reactivate** in Stage 3.
+"""
+} else if (tag.contains("E2E-LostSubmission")) {
+                    scenarioDetails += """
+📝 E2E Test Scenarios – MSIG New Submission (Acord-125)
+-------------------------------------------------------
+
+**Overview:**
+End-to-End flow covering user journey from **Stage 1 (In Draft)** to **Stage 4 (Quoted)** for New Business Submission with validations as per test cases.
+
+📂 **Reference Test Cases:**
+[SharePoint Link](https://d3core.sharepoint.com/:x:/r/sites/d3Product/_layouts/15/Doc.aspx?sourcedoc=%7B2C8450C5-0B85-4C65-82B8-F0546599570D%7D&file=End%20to%20End%20Manual%20Testing%20Test%20Cases-%20New%20Business%20Submission.xlsx&action=default&mobileredirect=true)
+
+---
+
+### 🔹 Stage-wise Test Cases
+
+1. **TC_E2E_016 – Stage 1 (In Draft) to Stage 2 (Under Review)**
+   * Create new submission (Acord-125).
+   * Perform validations as per test cases.
+   * Ensure user is able to use the **Lost** option in Stage 3.
+
+2. **TC_E2E_021 – Stage 1 (In Draft) to Stage 4 (Quoted)**
+   * Create new submission (Acord-125).
+   * Perform validations as per test cases.
+   * Ensure user is able to use the **Lost** option in Stage 4.
+"""
+} else if (tag.contains("E2E-Email_Verification")) {
+                    scenarioDetails += """
+📝 E2E Test Scenarios – MSIG New Submission (Acord-125)
+-------------------------------------------------------
+
+**Overview:**
+End-to-End flow covering user journey from **Stage 1 (In Draft)** to **Stage 8 (Issued)** for New Business Submission, including validations for sending mails with multiple extensions (e.g., .obj, .pdf, .xls) and maximum size (e.g., 40 MB).
+
+📂 **Reference Test Cases:**
+[SharePoint Link](https://d3core.sharepoint.com/:x:/r/sites/d3Product/_layouts/15/Doc.aspx?sourcedoc=%7B2C8450C5-0B85-4C65-82B8-F0546599570D%7D&file=End%20to%20End%20Manual%20Testing%20Test%20Cases-%20New%20Business%20Submission.xlsx&action=default&mobileredirect=true)
+
+---
+
+### 🔹 Stage-wise Test Cases
+
+1. **TC_E2E_010 – Stage 1 (In Draft) & Stage 2 (Cleared)**
+   * Create new submission (Acord-125).
+   * Add SOV and LR file.
+   * Validate user can send mail with multiple extensions (e.g., `.obj`, `.pdf`, `.xls`) and maximum size (e.g., 40 MB).
+
+2. **TC_E2E_014 – Stage 3 (Under Review)**
+   * Continue with the above Acord-125 submission.
+   * Add SOV and LR file.
+   * Create child submission and proceed with Based on first LOB submission.
+   * Validate user can send mail with multiple extensions (e.g., `.obj`, `.pdf`, `.xls`) and maximum size (e.g., 40 MB).
+
+3. **TC_E2E_019 – Stage 4 (Quoted)**
+   * Continue with the above Acord-125 submission.
+   * Add SOV and LR file.
+   * Validate user can send mail with multiple extensions (e.g., `.obj`, `.pdf`, `.xls`) and maximum size (e.g., 40 MB).
+
+4. **TC_E2E_038 – Stage 5 (Bind)**
+   * Continue with the above Acord-125 submission.
+   * Add SOV and LR file.
+   * Validate user can send mail with multiple extensions (e.g., `.obj`, `.pdf`, `.xls`) and maximum size (e.g., 40 MB).
+
+5. **TC_E2E_039 – Stage 6 (Bound)**
+   * Continue with the above Acord-125 submission.
+   * Add SOV and LR file.
+   * Validate user can send mail with multiple extensions (e.g., `.obj`, `.pdf`, `.xls`) and maximum size (e.g., 40 MB).
+
+6. **TC_E2E_040 – Stage 7 (Booked)**
+   * Continue with the above Acord-125 submission.
+   * Add SOV and LR file.
+   * Validate user can send mail with multiple extensions (e.g., `.obj`, `.pdf`, `.xls`) and maximum size (e.g., 40 MB).
+
+7. **TC_E2E_041 – Stage 8 (Issued)**
+   * Continue with the above Acord-125 submission.
+   * Add SOV and LR file.
+   * Validate user can send mail with multiple extensions (e.g., `.obj`, `.pdf`, `.xls`) and maximum size (e.g., 40 MB).
+"""
+                }else if (tag.contains("E2E-SanctionScreening")) {
+                    scenarioDetails += """
+📝 E2E Test Scenarios – MSIG New Submission (11420 Corp)
+-------------------------------------------------------
+
+**Overview:**
+End-to-End flow covering user journey from Stage 1 (In Draft) to Stage 8 (Issued) with validations as per test cases.
+
+📂 **Reference Test Cases:**
+[SharePoint Link](https://d3core.sharepoint.com/:x:/r/sites/d3Product/_layouts/15/Doc.aspx?sourcedoc=%7B2C8450C5-0B85-4C65-82B8-F0546599570D%7D&file=End%20to%20End%20Manual%20Testing%20Test%20Cases-%20New%20Business%20Submission.xlsx&action=default&mobileredirect=true)
+
+---
+
+### 🔹 Stage-wise Test Cases
+1. **TC_E2E_004 – Stage 1 (In Draft – Clear)**
+   * Create new submission (11420 Corp).
+   * Validate sanction screen flag & auto task generation as per test case.
+
+2. *TC_E2E_031 – Stage 2 (Cleared)**
+   * Continue with above submission.
+   * Validate advancement and checks as per test case.
+
+3. *TC_E2E_032 – Stage 3 (Under Review)**
+   * Continue with above submission.
+   * Create a child submission.
+   * Proceed with submission containing General Liability LOB.
+   * Validate as per test case.
+
+4. *TC_E2E_033 – Stage 4 (Quoted)**
+   * Continue with above submission.
+   * Validate advancement to Quoted stage as per test case.
+
+5. *TC_E2E_034 – Stage 5 (Bind)**
+   * Continue with above submission.
+   * Validate advancement to Bind stage as per test case.
+
+6. *TC_E2E_035 – Stage 6 (Bound)**
+   * Continue with above submission.
+   * Validate advancement to Bound stage as per test case.
+
+7. *TC_E2E_036 – Stage 7 (Booked)**
+   * Continue with above submission.
+   * Validate advancement to Booked stage as per test case.
+
+8. *TC_E2E_036 – Stage 8 (Issued)**
+   * Continue with above submission.
+   * Validate advancement to Issued stage as per test case.
+
+9. *TC_E2E_005 – Stage 1 (In Draft – False Positive)**
+   * Create new submission (11420 Corp).
+   * Validate sanction screen flag with false positive behavior & task generation.
+
+10. *TC_E2E_006 – Stage 1 (In Draft – Flagged)**
+   * Create new submission (11420 Corp).
+   * Validate flagged sanction screen with automatic task generation.
+"""
+                } else if (tag.contains("E2E-Referral")) {
+                    scenarioDetails += """
+📝 E2E Test Scenarios – MSIG New Submission (Acord-125)
+-------------------------------------------------------
+
+**Overview:**
+End-to-End flow covering user journey from **Stage 1 (In Draft)** to **Stage 8 (Issued)** for New Business Submission with validations as per test cases.
+
+📂 **Reference Test Cases:**
+[SharePoint Link](https://d3core.sharepoint.com/:x:/r/sites/d3Product/_layouts/15/Doc.aspx?sourcedoc=%7B2C8450C5-0B85-4C65-82B8-F0546599570D%7D&file=End%20to%20End%20Manual%20Testing%20Test%20Cases-%20New%20Business%20Submission.xlsx&action=default&mobileredirect=true)
+
+---
+
+### 🔹 Stage-wise Test Cases
+
+1. **TC_E2E_015 – Stage 1 to Stage 3 (In Draft → Under Review)**
+   * Create new submission (Acord-125).
+   * Perform validations as per test case.
+   * Create Child Submission.
+   * Refer submission to another user, logout, login as referral user, and decline the referral.
+
+2. **TC_E2E_020 – Stage 4 (Quoted)**
+   * Continue with the same Acord-125 submission.
+   * Perform validations as per test case.
+   * Refer submission to another user, logout, login as referral user, and decline the referral.
+
+3. **TC_E2E_042 – Stage 5 (Bind)**
+   * Continue with the same Acord-125 submission.
+   * Perform validations as per test case.
+   * Refer submission to another user, logout, login as referral user, and decline the referral.
+
+4. **TC_E2E_043 – Stage 6 (Bound)**
+   * Continue with the same Acord-125 submission.
+   * Perform validations as per test case.
+   * Refer submission to another user, logout, login as referral user, and decline the referral.
+
+5. **TC_E2E_044 – Stage 7 (Booked)**
+   * Continue with the same Acord-125 submission.
+   * Perform validations as per test case.
+   * Refer submission to another user, logout, login as referral user, and decline the referral.
+
+6. **TC_E2E_045 – Stage 8 (Issued)**
+   * Continue with the same Acord-125 submission.
+   * Perform validations as per test case.
+   * Refer submission to another user, logout, login as referral user, and decline the referral.
+"""
+                } else if (tag.contains("E2E-Email_Submission")) {
+                    scenarioDetails += """
+📝 E2E Test Scenarios – MSIG New Submission (Great Western Lumber - effective 12-1-22)
+-------------------------------------------------------
+
+**Overview:**
+End-to-End flow covering user journey from **Stage 1 (In Draft)** to **Stage 8 (Issued)** for New Business Submission with validations as per test cases.
+
+📂 **Reference Test Cases:**
+[SharePoint Link](https://d3core.sharepoint.com/:x:/r/sites/d3Product/_layouts/15/Doc.aspx?sourcedoc=%7B2C8450C5-0B85-4C65-82B8-F0546599570D%7D&file=End%20to%20End%20Manual%20Testing%20Test%20Cases-%20New%20Business%20Submission.xlsx&action=default&mobileredirect=true)
+
+---
+
+### 🔹 Stage-wise Test Cases
+
+1. **TC_E2E_046 – Stage 1 (In Draft)**
+   * Create new submission (test_property_product).
+   * Perform validations as per test case.
+
+2. **TC_E2E_047 – Stage 1 (In Draft)**
+   * Create new submission (test_no_product).
+   * Perform validations as per test case.
+
+3. **TC_E2E_048 – Stage 1 (In Draft)**
+   * Create new submission (Great Western Lumber - effective 12-1-22).
+   * Perform validations as per test case.
+
+4. **TC_E2E_049 – Stage 2 (Cleared)**
+   * Continue with the same Great Western Lumber - effective 12-1-22 submission.
+   * Upload **SOV** and **LR file**.
+   * Validate as per test case.
+
+5. **TC_E2E_050 – Stage 3 (Under Review)**
+   * From the same Great Western Lumber - effective 12-1-22 submission, create **Child Submission**.
+   * Add **SOV** and **LR file** (linked with Based on first LOB submission).
+   * Validate as per test case.
+
+6. **TC_E2E_051 – Stage 4 (Quoted)**
+   * Add **SOV** and **LR file** for Based on first LOB submission.
+   * Validate as per test case.
+
+7. **TC_E2E_052 – Stage 5 (Bind)**
+   * Add **SOV** and **LR file** for Based on first LOB submission.
+   * Validate as per test case.
+
+8. **TC_E2E_053 – Stage 6 (Bound)**
+   * Add **SOV** and **LR file** for Based on first LOB submission.
+   * Validate as per test case.
+
+9. **TC_E2E_054 – Stage 7 (Booked)**
+   * Add **SOV** and **LR file** for Based on first LOB submission.
+   * Validate as per test case.
+
+10. **TC_E2E_055 – Stage 8 (Issued)**
+   * Add **SOV** and **LR file** for Based on first LOB submission.
+   * Validate as per test case.
+"""
+                } else if (tag.contains("E2E-WithoutSov")) {
+                    scenarioDetails += """
+📝 E2E Test Scenarios – MSIG New Submission (Acord-125 & Acord-125)
+-------------------------------------------------------
+
+**Overview:**
+End-to-End flow covering user journey from **Stage 1 (In Draft)** to **Stage 8 (Issued)** for New Business Submission with validations as per test cases.
+
+📂 **Reference Test Cases:**
+[SharePoint Link](https://d3core.sharepoint.com/:x:/r/sites/d3Product/_layouts/15/Doc.aspx?sourcedoc=%7B2C8450C5-0B85-4C65-82B8-F0546599570D%7D&file=End%20to%20End%20Manual%20Testing%20Test%20Cases-%20New%20Business%20Submission.xlsx&action=default&mobileredirect=true)
+
+---
+
+### 🔹 Stage-wise Test Cases
+
+1. **TC_E2E_056 – Stage 1 (In Draft)**
+   * Create new submission (Acord-125 & Acord-125).
+   * Perform validations as per test case.
+
+2. **TC_E2E_057 – Stage 2 (Cleared)**
+   * Continue with the same Acord-125 & Acord-125 submission.
+   * Upload **SOV** and **LR file**.
+   * Validate as per test case.
+
+3. **TC_E2E_058 – Stage 3 (Under Review)**
+   * From the same Acord-125 & Acord-125 submission, create **Child Submission**.
+   * Add **SOV** and **LR file** (linked with Based on first LOB submission).
+   * Validate as per test case.
+
+4. **TC_E2E_059 – Stage 4 (Quoted)**
+   * Add **SOV** and **LR file** for Based on first LOB submission.
+   * Validate as per test case.
+
+5. **TC_E2E_060 – Stage 5 (Bind)**
+   * Add **SOV** and **LR file** for Based on first LOB submission.
+   * Validate as per test case.
+
+6. **TC_E2E_061 – Stage 6 (Bound)**
+   * Add **SOV** and **LR file** for Based on first LOB submission.
+   * Validate as per test case.
+
+7. **TC_E2E_062 – Stage 7 (Booked)**
+   * Add **SOV** and **LR file** for Based on first LOB submission.
+   * Validate as per test case.
+
+8. **TC_E2E_063 – Stage 8 (Issued)**
+   * Add **SOV** and **LR file** for Based on first LOB submission.
+   * Validate as per test case.
+"""
+                }
+                }
+// Split multiple tags (comma or newline separated) and join with comma
+def tagList = params.INCLUDE_VALUES.split(/[,\n]/).collect { it.trim() }.findAll { it }
+def tagsForEmail = ""
+tagList.eachWithIndex { tag, idx ->
+    tagsForEmail += tag
+    if (idx < tagList.size() - 1) tagsForEmail += ", "
+}
+
+
+                    def body = """
+Hi Team,
+
+Please find the below latest Robot test results from the Jenkins job "${env.JOB_NAME}" (Build #${env.BUILD_NUMBER}).
+
+🏠 Build Details:
+=============
+🚀 Job Name:     ${env.JOB_NAME}
+🔢 Jenkins Build Number: ${env.BUILD_NUMBER}
+🏷️ Tag Name(s):  ${tagsForEmail}
+🔍 Build Status: ${currentBuild.result ?: 'UNKNOWN'}
+🌐 Environment:  ${params.ENVIRONMENT}
+🌍 Server:   ${params.DEV_NUMBER}
+🔗 Environment URL: ${env.ENV_URL}
+🔗 Jenkins Piepline URL:    ${env.BUILD_URL}
+📅 Date & Time:  ${new Date().format("yyyy-MM-dd HH:mm:ss")}
+
+🔧 Configuration:
+=============
+🤖 Robot Version: ${summary.robotMetadata?.generator ?: 'Unknown'}
+🌐 Browser Type:  ${summary.browserInfo?.browser_type ?: 'Unknown'}
+🌌 Headless Mode: ${summary.browserInfo?.headless ?: 'Unknown'}
+
+${scenarioDetails}
+
+Test Results Summary:
+===================
+✅ Passed:   ${summary.passed ?: '0'}
+❌ Failed:   ${summary.failed ?: '0'}
+⚪ Skipped:  ${summary.skipped ?: '0'}
+🔢 Total:    ${summary.total ?: '0'}
+🔍 Pass Rate: ${summary.passRate ?: '0'}%
+⏳ Duration: ${summary.duration ?: '-'}
+
+📦 Submission ID(s):
+===================
+${submissionIds}
+
+"""
+// 
+if (summary.failedTests && summary.failedTests.size() > 0) {
+    body += "\nFailed Test Details:\n==================\n"
+    summary.failedTests.each { test ->
+        body += "Test: ${test.name}\n"
+        body += "   Reason: ${test.reason}\n"
+        // if (test.failed_keywords && test.failed_keywords.size() > 0) {
+        //     body += "Failing Keywords:\n"
+        //     test.failed_keywords.each { kw ->
+                // Skip screenshot-only failures
+                // if (!(kw.reason?.startsWith("Screenshot successfully captured")) 
+                //     && !(kw.keyword?.startsWith("Run Keyword And Continue On Failure"))) {
+                    // def argsStr = ""
+                    // if (kw.arguments) {
+                    //     kw.arguments.eachWithIndex { arg, idx ->
+                    //         argsStr += arg.toString()
+                    //         if (idx < kw.arguments.size() - 1) {
+                    //             argsStr += ", "
+                    //         }
+                    //     }
+                    // }
+            //         body += "\nActual keyword name: - ${kw.keyword}\n"
+            //         body += "   Reason: ${kw.reason}\n"
+            //     }
+            // }
+        // } else if (!(test.reason?.startsWith("Screenshot successfully captured"))) {
+        //     body += "Reason: ${test.reason}\n"
+        // }
+        body += "---\n"
+    }
+}
+
+
+                    mail(
+                        subject: "Workbench Regression Test Results - ${new Date().format("yyyy-MM-dd HH:mm:ss")}",
+                        body: body,
+                        to: 'e2e_test_results@convr.com'
+                    )
+
+                    
+                // 🔹 Docker Cleanup
+                echo "Cleaning up unused Docker resources..."
+                sh 'docker system prune -af --volumes || true'
+                }
+            }
+        }
+
+        aborted {
+            mail body: 'robotframework-browser jenkins', from: 'noreply@convr.com', subject: 'robotframework-browser-tests: ABORTED', to: 'e2e_test_results@convr.com'
+        }
+    }
+}
