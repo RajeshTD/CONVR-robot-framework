@@ -4,10 +4,10 @@ Library    String
 Library    OperatingSystem
 
 *** Variables ***
-${ENV_URL}    %{ENV_URL=https://dev-264.convr.in/}
+${ENV_URL}    %{ENV_URL=https://staging.convr.io/}
 ${url}    ${ENV_URL}
 ${BROWSER}    chromium
-${HEADLESS}    True
+${HEADLESS}    False
 ${Video_Dir}    ../results/videos
 
 *** Keywords ***

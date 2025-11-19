@@ -3515,3 +3515,17 @@ Verify Slider Value in Forms Tab
     ELSE
         Log    Slider is not clickable or not visible
     END
+
+verify that click on side detials policy saved popup should not be appear 
+    [Documentation]    This method for verify that click on side detials policy saved popup should not be appear 
+    Click Answers Tab
+    Navigate To Form
+    ${asidedetials}    Get Elements    ${Forms_Aside_detials}
+    FOR    ${element}    IN    @{asidedetials} 
+        ${status}    Run Keyword And Return Status    Wait For Elements State    ${element}    visible    ${display_timeout}
+        Run Keyword And Continue On Failure    Should Be True    ${status}    policy saved popup is appearing after click on aside detials in the forms page
+        ${status}    Run Keyword And Return Status    Click    ${element}
+        Run Keyword And Continue On Failure    Should Be True    ${status}    policy saved popup is appearing after click on aside detials in the forms page 
+       ${status}    Run Keyword And Return Status    Wait For Elements State    ${policy_save_popup}    visible    ${display_timeout}
+        Run Keyword And Continue On Failure    Should Not Be True    ${status}    policy saved popup is appearing after click on aside detials in the forms page 
+    END

@@ -655,7 +655,7 @@ Select Submission using submission id
     [Arguments]    ${data_submissionID}    @{submission_column_names}
 
     Click All submissions option
-
+    Sleep    2s
     Rearrange Submission Page Columns    @{submission_column_names}
 
     Search Submission By Submission ID    ${data_submissionID}
@@ -5821,3 +5821,43 @@ verify the projectadress and vessels
     ${click_status}=    Run Keyword And Return Status    Click    ${Vessels_delete}
     Run Keyword And Continue On Failure    Should Be True    ${click_status}    msg=Failed to click 'Delete' in Vessels section after verification.
     
+Delete and add the SIC and Naics code in clearance tab 
+    [Documentation]    This method verify the Delete and add the SIC and Naics code in clearance tab
+    [Arguments]    ${NAICS_value}
+
+    # ${delete_sic}    Catenate    SEPARATOR=    ${delete_sic_code_prefix}    ${SIC_value}    ${delete_sic_code_sufix}    
+    # Click    ${delete_sic}
+    #  Wait For Elements State    ${Add_sic_code_button}    visible    ${display_timeout}
+    # Click    ${Add_sic_code_button}
+    # # Wait For Elements State    ${delete_sic}    visible    ${display_timeout}
+    # ${SIC_input}    Get Elements    ${Add_sic_value}
+    # FOR    ${element}    IN    @{SIC_input}   
+    #     Fill Text    ${element}    ${SIC_value} 
+    # END
+    ${delete_naics}    Catenate    SEPARATOR=    ${delete_sic_code_prefix}    ${NAICS_value}    ${delete_sic_code_sufix}    
+    Click    ${delete_naics}
+    Wait For Elements State    ${Add_naic_code_button}    visible    ${display_timeout}
+    Click    ${Add_naic_code_button}
+    # Wait For Elements State    ${delete_sic}    visible    ${display_timeout}
+    
+
+    ${NAICS_input}    Get Elements    ${Add_naics_value}
+
+    FOR    ${element}    IN    @{NAICS_input}
+    Fill Text    ${element}    ${NAICS_value}
+    Exit For Loop
+    END
+      ${NAICS_input}    Get Elements    ${Add_naics_value}
+
+    FOR    ${element}    IN    @{NAICS_input}
+    Fill Text    ${element}    ${NAICS_value}
+    Exit For Loop
+    END
+
+Veify That Empty NAICS and SIC box should not be present in the clearance 
+    [Documentation]    This method is Veify That Empty NAICS and SIC box should not be present in the clearance    
+    Sleep    2s
+    ${NAICS_input}    Get Elements    ${Add_naics_value}
+    Run Keyword And Continue On Failure    Should Be Empty    ${NAICS_input}    after the delete the naics code the empty box is present 
+    ${SIC_input}    Get Elements    ${Add_sic_value}
+    Run Keyword And Continue On Failure    Should Be Empty    ${Add_sic_value}    after the delete the sic code the empty box is present

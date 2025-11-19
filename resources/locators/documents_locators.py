@@ -62,3 +62,6 @@ Sov_Driver_option="xpath=(//header)[3]//a[normalize-space()='Drivers']"
 Sov_save="xpath=//ng-transclude[text()='Save']"
 Cell_input="xpath=//div[@class='handsontableInputHolder ht_clone_master']//textarea"
 DocPropertiesColumnSearch="xpath=//input[@placeholder='Search Columns']"
+
+Totol_claims="xpath=//dt[text()='Total Claims']//following-sibling::dd"
+claims_button="xpath=//a[normalize-space()='Claims']"

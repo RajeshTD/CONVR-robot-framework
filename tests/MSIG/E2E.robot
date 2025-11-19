@@ -1,6 +1,6 @@
 *** Settings ***
 Resource    ../../utils/common_keywords.robot
-Library    ../../libraries/ScreenshotListener.py    ${ENABLE_SCREENSHOT}
+Library    ../../libraries/ScreenshotListener.py    False
 Library    ../../libraries/ValidationScreenshotListener.py
 Test Setup    Launch URL and Login in to the application
 Test Teardown    Run Keywords    Close Context    Close Browser
@@ -3557,7 +3557,23 @@ TC_E2E_068
     Advance Stage    ${TC_E2E_011['stageNo']}
     Run Keyword And Continue On Failure    Verify Stage is updated in the submission    ${TC_E2E_011['stage']}
     Verify Log History    ${TC_E2E_068['expectedLogHistory']}
-
+TC_E2E_207
+    [Documentation]    This test case for the msig 207 bug fix testcases 
+    Run Keyword And Continue On Failure    Verify My Assignments Tab is displayed as a default tab
+    # ${submission_id}    Create New Submission    ${TC_E2E_068['FileName']}    @{TC_E2E_068['SubmissionColumnNames']}
+    # Set Suite Variable   ${submission_id_1}    ${submission_id}
+    Select Submission using submission id    e22c2d1c-5b29-40c1-8f8a-6bed22f3065d    @{TC_E2E_068['SubmissionColumnNames']}
+    Run Keyword And Continue On Failure    Verify Submission page is displayed
+    Click Edit Submission
+    # Run Keyword And Continue On Failure    verify that click on side detials policy saved popup should not be appear
+    Click and verify Clearance tab
+    Delete and add the SIC and Naics code in clearance tab    444190
+    Run Keyword And Continue On Failure    Verify Clearance Data in Insured Tab    ${TC_E2E_207['Clearance2.0Data']['InsuredTabData']}
+    Run Keyword And Continue On Failure    Verify Clearance Data in Processing Tab    ${TC_E2E_207['Clearance2.0Data']['ProcessingTabData']}
+    Run Keyword And Continue On Failure    Verify Clearance Data in Producer Tab    ${TC_E2E_207['Clearance2.0Data']['ProducerTabData']['expectedTextInProducer']}    ${TC_E2E_207['Clearance2.0Data']['ProducerTabData']['ProducerName']}      ${TC_E2E_207['Clearance2.0Data']['ProducerTabData']['ProducerEmail']} 
+    Run Keyword And Continue On Failure    Verify Clearance Data in Coverage Tab    ${TC_E2E_207['Clearance2.0Data']['Covered']}
+    Run Keyword And Continue On Failure    Complete Clearance and Verify Popup    ${TC_E2E_207['Clearance2.0Data']['Covered']}
+    Run Keyword And Continue On Failure    Veify That Empty NAICS and SIC box should not be present in the clearance
 
 *** Keywords ***
 Run Pre-requiste Steps for Stage 1

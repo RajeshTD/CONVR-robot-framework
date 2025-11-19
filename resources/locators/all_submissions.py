@@ -369,3 +369,11 @@ Vessels_delete="xpath=//div[@data-slot='card-content']//div//button"
 Select_firstrow="xpath=(//input[@aria-label='Press Space to toggle row selection (unchecked)'])[1]"
 Convr_Dropdown_option="xpath=//div[@data-slot='dropdown-menu-content']//div | //div[@data-slot='dropdown-menu-content']//a"
 InsuredState="xpath=(//label[text()='State']/following-sibling::input)[1]"
+
+
+delete_sic_code_prefix="xpath=//input[@value='"
+delete_sic_code_sufix="']//ancestor::tr//td[3]//button"
+Add_naic_code_button="xpath=//span[text()='Add NAICS Code']"
+Add_sic_code_button="xpath=//span[text()='Add SIC Code']"
+Add_sic_value="xpath-=//section[@id='sic-codes']//input[@value='']"
+Add_naics_value="xpath=//section[@id='naics-codes']//input[@value='']"

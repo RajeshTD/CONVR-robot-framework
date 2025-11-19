@@ -174,3 +174,8 @@ NYUEGAverageRatio="xpath=(//div[@data-slot='form-control']//span)[1]"
 Clearance_processing_loc3="']/following-sibling::*[self::button or self::input]"
 SLIDER="xpath=//div[text()='Premium Size at Manual']//following::span[@data-slot='slider']"
 DISPLAY="xpath=(//div[text()='Premium Size at Manual']//following::span)[1]"
+
+
+
+Forms_Aside_detials="xpath=(//section[@id='summary-aside-details'])[1]//div//span"
+policy_save_popup="xpath=//div[text()='Policy information saved.']"

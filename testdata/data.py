@@ -8047,4 +8047,37 @@ TC_E2E_070={
 
 
 }
+
+TC_E2E_207={
+    "Clearance2.0Data": {
+        "InsuredTabData":['U000047086', 'WIN-CON ENTERPRISES, INC', '483 N WEST END AVE, NEW BRAUNFELS, TX 78130, United States', '483 N WEST END AVE', '', '', 'NEW BRAUNFELS', 'TX', '78130', 'COMAL', 'United States', '1542', 'NONRESIDENTIAL CONSTRUCTION, NEC', '236220', 'Commercial and Institutional Building Construction', '238100', 'Other Foundation, Structure, and Building Exterior Contractors', '238130', 'Framing Contractors', '238150', 'Glass and Glazing Contractors', '321911', 'Wood Window and Door Manufacturing', '327215', 'Glass Product Manufacturing Made of Purchased Glass', '444190', 'Doors'],
+        "ProcessingTabData":{
+            "UnderwriterName":"Test",
+            "UnderwriterEmail":"test@convr.com",
+            "UnderwrittingOffice":"Chicago",
+            "OperationsName":"test",
+            "OperationsEmail":"test@convr.com",
+            "RepOffice":"New York",
+            "RepEmail":"test@convr.com",
+            "Channel":"Open Market",
+            "SubChannelValue":"Fronted",
+            "DirectorAssumedValue" :"Direct",
+        },
+        "ProducerTabData":{
+            "expectedTextInProducer":['HYLANT GROUP, INC.','92870','50 E BUSINESS WAY STE 420, CINCINNATI, OH 45241, United States','50 E BUSINESS WAY','STE 420','CINCINNATI','OH','45241','United States'],
+            "ProducerName":"test",
+            "ProducerEmail":"test@convr.com",
+        },
+        "Covered":{
+            "Product":"General Liability",
+            "ProductSegment":"Casualty",
+            "ClearanceSavedPopupText":"Clearance data saved."
+        },
+        "queryList":['d3Submission.d3Client.underwriter.name','d3Submission.d3Client.underwriter.email','d3Submission.d3Client.underwriter.office','d3Submission.d3Client.underwriting_assistant.name','d3Submission.d3Client.underwriting_assistant.email',
+                 'd3Submission.d3Client.rep.office','d3Submission.d3Client.rep.email','d3Submission.d3Client.channel',
+                 'd3Submission.d3Client.sub_channel','d3Submission.d3Client.product_segment','d3Submission.d3Company.producer.name','d3Submission.d3Company.producer.email','d3Submission.d3Company.sections_attached'],
+    },
+    "sic_code":"",
+    "NAICS_code":"238150",
+}
  
