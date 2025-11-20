@@ -51,6 +51,7 @@ Archived_document_files="xpath=//button[@test-id='asset-card-options-menu-archiv
 Archived_delete_button="xpath=//button[@test-id='asset-card-options-delete-archived']"
 Document_Attachemnt_files="xpath=//assets-files-aside-add-files-email//div[@ng-if and @ng-repeat]//span[contains(@class,'truncate')]"
 Attachement_files_archive_buttom="xpath=//assets-files-aside-add-files-email//div[@ng-if and @ng-repeat]//button[@uib-tooltip='Archive']"
+Document_Sub_files="xpath=(//assets-files-aside-add-files-email//div[@ng-if and @ng-repeat]//span)[1]"
 Attachement_msg="xpath=//assets-files-aside-add-files-email//div[@class='flex items-center gap-2 mt-2 ng-scope'] //span"
 Add_row_button="xpath=//d3-button[@ng-if='$ctrl.editorEnabled()']//ng-transclude"
 Loading="xpath=//span[text()='Loading...']"
@@ -65,3 +66,6 @@ DocPropertiesColumnSearch="xpath=//input[@placeholder='Search Columns']"
 
 Totol_claims="xpath=//dt[text()='Total Claims']//following-sibling::dd"
 claims_button="xpath=//a[normalize-space()='Claims']"
+
+Reprocces_more_option="xpath=//button[normalize-space()='Reprocess']"
+Acord_more_option="xpath=//button[@test-id='asset-card-options-menu-acord']"

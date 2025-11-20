@@ -258,7 +258,31 @@ Click My submissions option
 #         #  Wait For Elements State    ${submission_options_text}    visible    5s
 #          Click    ${submission_options_text}
 #     END  
+select the Options as per given data in Submission page
+    [Documentation]    Ensures that the 'All submissions' filter is selected on the submissions page.
+    ...    If it's not already selected, it will open the dropdown and click it.
+    [Arguments]    ${Submission_Options_Value}
+    ${filter_visible}=    Run Keyword And Return Status    Wait For Elements State    ${Submission_Filter_Options_Button}    visible    timeout=${display_timeout}
+    Run Keyword And Continue On Failure    Should Be True    ${filter_visible}    msg=Click All submissions option: 'Submission Filter Options' button is not visible on the submissions page.
 
+    ${current_selection}=    Get Text    ${Submission_Filter_Options_Button}
+    Run Keyword And Continue On Failure    Should Not Be Empty    ${current_selection}    msg=Click All submissions option: Failed to retrieve currently selected submission filter option.
+
+    ${all_submissions_value}=    Set Variable    ${Submission_Options_Value}
+    IF    '${current_selection}' == '${all_submissions_value}'
+        Log Step    "Click All submissions option: Submission already in '${Submission_Options_Value}' option."
+    ELSE
+        Sleep    3s
+        ${clicked_filter}=    Run Keyword And Return Status    Click    ${Submission_Filter_Options_Button}
+        Run Keyword And Continue On Failure    Should Be True    ${clicked_filter}    msg=Click ${Submission_Options_Value} option: Failed to click 'Submission Filter Options' button.
+
+        ${option_locator}=    Catenate    SEPARATOR=    ${Submission_Options}    ${all_submissions_value}    ']
+        ${option_visible}=    Run Keyword And Return Status    Wait For Elements State    ${option_locator}    visible    timeout=${display_timeout}
+        Run Keyword And Continue On Failure    Should Be True    ${option_visible}    msg=Click ${Submission_Options_Value}: Option '${Submission_Options_Value}' not visible in the dropdown.
+
+        ${clicked_option}=    Run Keyword And Return Status    Click    ${option_locator}
+        Run Keyword And Continue On Failure    Should Be True    ${clicked_option}    msg=Click ${Submission_Options_Value} option: Failed to select '${Submission_Options_Value}' from the filter dropdown.
+    END
 Click All tasks option
     [Documentation]    Ensures that the 'All tasks' filter is selected on the submissions page.
     ...    If it's not already selected, it will open the dropdown and click it.
@@ -287,3 +311,70 @@ Click All tasks option
         ${status}=    Run Keyword And Return Status    Click    ${submission_options_text}
         Run Keyword And Continue On Failure    Should Be True    ${status}    'Failed to click submission options text'
     END
+Get the length of the created task in the Convr Task Tab
+    [Documentation]    Gets the length of the created task in the Convr Task Tab.
+    # [Arguments]    ${ColumnNames} 
+    select the Options as per given data in Submission page    Created by me 
+    Sleep    2
+    ${Created_Task}    Get Elements    ${Convr_cell_column}
+    ${Created_Task_length}    Get Length    ${Created_Task}
+    Log    ${Created_Task_length}
+    RETURN    ${Created_Task_length}
+Get the length of the Assigned task in the Convr Task Tab
+        [Documentation]    Gets the length of the created task in the Convr Task Tab.
+    # [Arguments]    ${ColumnNames} 
+    select the Options as per given data in Submission page    Assigned to me  
+    Sleep    2s
+    ${Assigned_Task}    Get Elements    ${Convr_cell_column}
+    ${Assigned_Task_length}    Get Length    ${Assigned_Task}
+    Log    ${Assigned_Task_length}
+    RETURN    ${Assigned_Task_length}
+
+
+Verify the created task data reflected in Convr Task submission page
+    [Documentation]    Verifies that the created task data is reflected in the Convr submission page.
+    [Arguments]    ${expected_Header}
+    ${Excepted_Task_detials}    Create List
+    ${status}    Run Keyword And Return Status    Wait For Elements State    ${Convr_cell_column}    visible    ${element_timeout}
+    Run Keyword And Continue On Failure    Should Be True    ${status}    Convr submission
+    FOR    ${Column_header}    IN    @{expected_Header}
+        ${column_locator}=    Catenate    SEPARATOR=        ${Convr_cell_value}    ${Column_header}    ${Convr_cell_value_suffix}
+        Wait For Elements State    ${column_locator}    visible    ${element_timeout}
+        ${cell_text}=    Get Text    ${column_locator}
+        ${cell_text}    Strip String    ${cell_text}
+        Log    ${cell_text}
+        Append To List    ${Excepted_Task_detials}    ${cell_text}
+    END
+    Log    ${Excepted_Task_detials}
+Verify that Detials should be Hidden
+    [Documentation]    Verifies that specific details are hidden on the submissions page.
+    [Arguments]    ${ColumnNames}
+
+    ${button_visible}=    Run Keyword And Return Status    Wait For Elements State    ${Submissions_Page_Columns_Button}    visible    timeout=${element_timeout}
+    Run Keyword And Continue On Failure    Should Be True    ${button_visible}    msg=Rearrange Submission Page Columns: 'Submissions Page Columns' button is not visible on the submissions page.
+
+    ${clicked_button}=    Run Keyword And Return Status    Click    ${Submissions_Page_Columns_Button}
+    Run Keyword And Continue On Failure    Should Be True    ${clicked_button}    msg=Rearrange Submission Page Columns: Failed to click 'Submissions Page Columns' button.
+    Sleep   2s
+    ${select_all_visible}=    Run Keyword And Return Status    Wait For Elements State    ${Submission_Columns_Select_All_Checkbox}    visible    timeout=${element_timeout}
+    Run Keyword And Continue On Failure    Should Be True    ${select_all_visible}    msg=Rearrange Submission Page Columns: 'Select All' checkbox for columns is not visible.
+
+    ${column_locator}=    Catenate    SEPARATOR=        ${Submission_Columns_Status_CheckBox}    ${ColumnNames}    ${Submission_Columns_Status_CheckBox_1}
+
+    ${scroll}=    Run Keyword And Return Status    Scroll To Element    ${column_locator}
+    Run Keyword And Continue On Failure    Should Be True    ${scroll}    msg=Rearrange Submission Page Columns: Failed to scroll to column '${ColumnNames}' checkbox.
+
+    ${column_visible}=    Run Keyword And Return Status    Wait For Elements State    ${column_locator}    visible    timeout=${element_timeout}
+    Run Keyword And Continue On Failure    Should Be True    ${column_visible}    msg=Rearrange Submission Page Columns: Column '${ColumnNames}' checkbox not visible.
+    ${state}    Get Checkbox State    ${column_locator}
+    Log    ${state}
+    ${status}    Run Keyword And Return Status    Should Not Be True    ${state}
+    Should Be True    ${status}    By default Details column should be Hidden but its not hidden is visible on Convr Task Page
+    # IF    '${state}' == 'True'
+    # ${checked_column}=    Run Keyword And Return Status    Check Checkbox    ${column_locator}
+    # Run Keyword And Continue On Failure    Should Be True    ${checked_column}    msg=Rearrange Submission Page Columns: Failed to select column '${ColumnNames}' checkbox.
+    # END
+    ${clicked_button_again}=    Run Keyword And Return Status    Click    ${Submissions_Page_Columns_Button}
+    Run Keyword And Continue On Failure    Should Be True    ${clicked_button_again}    msg=Rearrange Submission Page Columns: Failed to close 'Submissions Page Columns' menu.
+    ${status}    Run Keyword And Return    Wait For Elements State    ${Convr_detials_field}    hidden    timeout=5s
+    Should Be True    ${status}    Details column is not hidden on Convr Task Page

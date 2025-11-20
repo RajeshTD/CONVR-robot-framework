@@ -7,6 +7,8 @@ ${path}             ${CURDIR}/../../uploads/
 ${DownloadPath}     ${CURDIR}/../../downloads/
 ${testDataPath}     ${CURDIR}/../../testdata/
 ${ActualClaimsFileName}     ActualClaims.xlsx
+${ActualMsgFileName}    ActualMsg.msg
+${ActualRaterFileName}    ActualRater.xlsx
 ${ExpectedClaimsFileName}     ExpectedClaims.xlsx
 ${ActualPoliciesFileName}     ActualPolicies.csv
 ${ExpectedPoliciesFileName}     ExpectedPolicies.csv
@@ -1169,4 +1171,210 @@ Verify Files Sov Are Editable
     ${status}=    Run Keyword And Return Status    Click    ${Answers_Tab}
     Run Keyword And Continue On Failure    Should Be True    ${status}    Failed to switch back to Answers Tab.
 
- 
+verify the Msg file dowload in msg format 
+    [Documentation]     This method is used to verify the msg file dowloded in the .msg format   
+    ...    ${filename}    we need to pass the file name 
+    ...    ${extension} ew need to pass the file format (eg : .msg , .eml ,.pdf)
+    [Arguments]    ${filename}    ${extension}
+    Switch to Documents
+    Scroll To    ${Email_body_more_option} 
+     Wait For Elements State    ${Email_body_more_option}    visible
+    Click    ${Email_body_more_option}
+    Wait For Elements State    ${Email_body_dowload_option}    visible
+    ${promise}    Promise To Wait For Download    ${DownloadPath}${ActualMsgFileName}
+    Click    ${Email_body_dowload_option}
+    ${fileObject}    Wait For     ${promise}
+    File Should Exist    ${fileObject}[saveAs]
+    Run Keyword And Continue On Failure    Should Contain    ${fileObject}[suggestedFilename]    ${filename}  
+    Run Keyword And Continue On Failure    Should Contain    ${fileObject}[suggestedFilename]    ${extension}
+
+
+# verify the Rater file dowload in xlsx format 
+#     [Documentation]     This method is used to verify the msg file dowloded in the .msg format   
+#     ...    ${filename}    we need to pass the file name 
+#     ...    ${extension} ew need to pass the file format (eg : .msg , .eml ,.pdf)
+#     [Arguments]    ${filename}    ${extension}
+#     Switch to Documents
+#     Scroll To    ${Email_body_more_option} 
+#      Wait For Elements State    ${Email_body_more_option}    visible
+#     Click    ${Email_body_more_option}
+#     Wait For Elements State    ${Email_body_dowload_option}    visible
+#     ${promise}    Promise To Wait For Download    ${DownloadPath}${ActualRaterFileName}
+#     Click    ${Email_body_dowload_option}
+#     ${fileObject}    Wait For     ${promise}
+#     File Should Exist    ${fileObject}[saveAs]
+#     Run Keyword And Continue On Failure    Should Contain    ${fileObject}[suggestedFilename]    ${filename}  
+#     Run Keyword And Continue On Failure    Should Contain    ${fileObject}[suggestedFilename]    ${extension}
+
+
+verify the Rater file dowload in xlsx format 
+    [Documentation]     This method is used to verify the msg file dowloded in the .msg format   
+    ...    ${filename}    we need to pass the file name 
+    ...    ${extension} ew need to pass the file format (eg : .msg , .eml ,.pdf)
+    [Arguments]    ${filename}    ${extension}
+    Switch to Documents
+    Scroll To    ${Email_body_more_option} 
+     Wait For Elements State    ${Email_body_more_option}    visible
+    Click    ${Email_body_more_option}
+    Wait For Elements State    ${Email_body_dowload_option}    visible
+    ${promise}    Promise To Wait For Download    ${DownloadPath}${ActualMsgFileName}
+    Click    ${Email_body_dowload_option}
+    ${fileObject}    Wait For     ${promise}
+    File Should Exist    ${fileObject}[saveAs]
+    Run Keyword And Continue On Failure    Should Contain    ${fileObject}[suggestedFilename]    ${filename}  
+    Run Keyword And Continue On Failure    Should Contain    ${fileObject}[suggestedFilename]    ${extension}
+
+verify the more options fields
+    [Documentation]    This method is used for the verify the more options
+    [Arguments]    ${Expected_value}
+    ${Actual_value}    Create List
+    Click    ${Email_body_more_option}
+    ${elements}    Get Elements    ${Document_more_options_fields}
+    FOR    ${element}    IN    @{elements}
+        ${values}    Get Text    ${element}
+        ${values}    Strip String    ${values}
+        Append To List    ${Actual_value}    ${values}  
+    END       
+    Run Keyword And Continue On Failure    Lists Should Be Equal    ${Expected_value}    ${Actual_value}
+
+verify the file info details
+    [Documentation]    This method is used for verify the document info detials
+    [Arguments]    ${file_name}    ${data}
+
+    verify the more options fields    ${data['More_fields']}
+    ${today}=    Get Current Date    result_format=%b %d, %Y
+    Insert Into List    ${data['expected_data']}    5    ${today}
+    Insert Into List    ${data['expected_data']}    6    ${today}
+    Insert Into List    ${data['expected_data']}    0    ${file_name}
+    Append To List    ${data['expected_data']}    ${file_name}    
+    ${Actual_Fields_name}    Create List
+    ${Actual_info_value}    Create List
+    Click    ${Email_body_info_option}
+    ${info_fields}    Get Elements    ${Document_info_detials_field}
+    FOR    ${element}    IN    @{info_fields}
+        ${Info_field_name}    Get Text    ${element}
+        ${Info_field_name}    Strip String    ${Info_field_name}
+        Append To List    ${Actual_Fields_name}    ${Info_field_name}    
+    END
+    Run Keyword And Continue On Failure    Lists Should Be Equal    ${data['info_fields']}    ${Actual_Fields_name}
+    ${info_values}    Get Elements    ${Document_info_detials_value}
+    FOR    ${element}    IN    @{info_values}
+        ${Info_field_value}    Get Text    ${element}
+        ${Info_field_value}    Strip String    ${Info_field_value}
+        Append To List    ${Actual_info_value}    ${Info_field_value}  
+    END
+    Log    ${data['expected_data']}
+    Log    ${Actual_info_value}
+    ${length}    Get Length    ${Actual_info_value}
+    FOR    ${counter}    IN RANGE    0    ${length}    
+       ${expected_item}=    Get From List    ${data['expected_data']}    ${counter}
+        ${actual_item}=      Get From List    ${Actual_info_value}    ${counter}
+        Run Keyword And Continue On Failure    Should Contain    ${actual_item}    ${expected_item}
+    END
+delete the given file in processed Tab
+    [Documentation]    This method is used to delete the given type file processed tab 
+    [Arguments]    @{document_type_data}
+    FOR    ${type}    IN    @{document_type_data}
+    ${locator}    Catenate    SEPARATOR=    ${more_option}    ${type}'] 
+    ${Documents}    Get Elements    ${locator}
+    # Reverse the list so it runs from last → first
+    ${rev_documents}=    Evaluate    list(reversed(${Documents}))
+    FOR    ${element}    IN    @{rev_documents}
+        ${locator_delete}    Catenate    SEPARATOR=    ${Docment_delete_option1}    ${type}'] 
+        ${status}    Run Keyword And Return Status    Wait For Elements State    ${element}    visible    5s
+        IF    '${status}' == 'True'
+            Scroll To Element    ${element}
+            Click    ${element}
+            Click    ${locator_delete}
+        END
+        
+    END
+    END
+
+verify the no of files in Archived      
+    [Documentation]    This method is used to verify the number of file present in archived tab
+    [Arguments]    ${expected_length}
+    Click    ${Doc_Archived_loc}
+    ${elements}    Get Elements    ${Archived_document_files}
+    ${Actual_legth}    Get Length    ${elements}
+    Run Keyword And Continue On Failure    Should Be Equal    ${Actual_legth}    ${expected_length}
+
+verify files are deleted 
+    [Documentation]    This method is used to verify the verify the filed are deleted or not 
+    [Arguments]    @{document_type_data}
+     Click    ${Doc_Processed_loc}
+    FOR    ${type}    IN    @{document_type_data}
+    ${locator}    Catenate    SEPARATOR=    ${more_option}    ${type}'] 
+    ${states}=    Get Element States    ${locator}
+    Log    ${states}
+# Validate it contains "detached"
+    Run Keyword And Continue On Failure    Should Contain    ${states}    detached
+
+    END
+
+delete the archived files
+    [Documentation]    This method is used for the delete all file in archived tab
+    Click    ${Doc_Archived_loc}
+    ${Documents}    Get Elements    ${Archived_document_files}
+    ${rev_documents}=    Evaluate    list(reversed(${Documents}))
+    FOR    ${element}    IN    @{rev_documents}
+        Scroll To Element    ${element}
+        Click    ${element}
+        Click    ${Archived_delete_button}
+    END
+    Click    ${Doc_Processed_loc}
+
+verify sub attachement files in document while uploading 
+    [Documentation]    this mwthod is used for the verify the sub attachment files are present are not 
+    [Arguments]    ${filename}
+    ${status}    Run Keyword And Return Status    ${Document_Sub_files}    
+    IF    ${status}
+    ${actual_file_name}    Create List
+    ${Sub_files}    Get Elements    ${Document_Sub_files}
+    FOR    ${element}    IN    @{Sub_files}
+        ${file_name}    Get Text    ${element}
+    Run Keyword And Continue On Failure    Should Not Contain    ${file_name}    .jpg
+    Run Keyword And Continue On Failure    Should Not Contain    ${file_name}    .jpeg
+    Run Keyword And Continue On Failure    Should Not Contain    ${file_name}    .png
+    Run Keyword And Continue On Failure    Should Not Contain    ${file_name}    .gif
+    Append To List    ${actual_file_name}    ${file_name}
+    END
+    Lists Should Be Equal    ${actual_file_name}    ${filename}
+    END
+
+
+
+Upload given Documents in document tab
+    [Documentation]    Uploads multiple documents (like SOV and Loss Run) to the submission.
+    ...
+    ...    *Arguments:*
+    ...    - `@{FileName}`: A list of file names to be uploaded from the `uploads` directory.
+    [Arguments]    @{FileName}
+    Switch to Documents
+    FOR    ${file}    IN    @{FileName}
+            ${AbsolutePath}=    Normalize Path    ${path}${file}
+            Upload File By Selector    ${UploadFile}    ${AbsolutePath}
+            Sleep    2s
+    END
+    FOR    ${file}    IN    @{FileName}
+        ${isArchive} =   Run Keyword And Return Status    Get Element States    ${ArchiveIcon}    validate    value & visible    'ArchiveIcon should be visible.'
+        IF   ${isArchive}
+            # ${AbsolutePath}=    Normalize Path    ${path}${file}
+            ${ArchieveFile}=    Catenate    SEPARATOR=    ${ArchiveButton1}    ${file}    ${ArchiveButton2}
+            Click    ${ArchieveFile}
+            Sleep    2s
+        END
+    END
+    Wait For Elements State    ${UploadButton}    visible
+    Click    ${UploadButton}
+
+
+verify The Reprocess should be disabled for HITL User
+    [Documentation]    This method for the verify The Reprocess should be disabled for HITL User
+    Click Answers Tab
+    Switch To Documents
+    Wait For Elements State    ${Acord_more_option}    visible    ${element_timeout}
+    Click    ${Acord_more_option}
+    ${state}    Get Element States    ${Reprocces_more_option}    
+    Should Contain    ${state}    disabled
+

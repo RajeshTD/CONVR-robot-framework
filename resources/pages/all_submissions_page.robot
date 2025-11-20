@@ -5861,3 +5861,340 @@ Veify That Empty NAICS and SIC box should not be present in the clearance
     Run Keyword And Continue On Failure    Should Be Empty    ${NAICS_input}    after the delete the naics code the empty box is present 
     ${SIC_input}    Get Elements    ${Add_sic_value}
     Run Keyword And Continue On Failure    Should Be Empty    ${Add_sic_value}    after the delete the sic code the empty box is present
+
+verify the Transation Type filter in Convr Submission page
+    [Documentation]    This method is used to verify the Transation Type filter in Convr Submission page
+    [Arguments]    ${expected_options}    
+    select the Options as per given data in Submission page    Created by me 
+    ${status}    Run Keyword And Return Status    Wait For Elements State    ${Transaction_filter_button}    visible    timeout=${element_timeout}
+    Run Keyword And Continue On Failure    should be True    ${status}    msg=Transaction Type filter button is not visible
+    ${clicked}=    Run Keyword And Return Status    Click    ${Transaction_filter_button}
+    Run Keyword And Continue On Failure    Should Be True    ${clicked}    msg=Failed to click Transaction Type filter button
+    # ${status}    Run Keyword And Return Status    Wait For Elements State    ${Transaction_type_options}    visible    timeout=${element_timeout}
+    # Run Keyword And Continue On Failure    should be True    ${status}    msg=Transaction Type options are not visible
+    ${options_elements}    Get Elements    ${Transaction_type_options}
+    ${Actual_options}    Create List
+    FOR    ${element}    IN    @{options_elements}
+        ${option_text}    Get Text    ${element}
+        strip String    ${option_text}
+        Append To List    ${Actual_options}    ${option_text}
+    END
+    FOR    ${element}    IN    @{Actual_options}
+        ${locator}    Catenate    SEPARATOR=    ${Filter_option_checkbox}    ${element}    ${Filter_option_checkbox_suffix}
+        ${staus}    Get Checkbox State    ${locator}  
+        Run Keyword And Continue On Failure    Should Be True    ${staus}    msg=Checkbox for option ${element} is not selected    
+    END
+    Press Keys    ${Transaction_filter_button}    Escape
+    FOR    ${Option}    IN    @{Actual_options}
+      IF    '${Option}' == '(Select All)'
+            Continue For Loop
+      ELSE
+            Click    ${Transaction_filter_button}
+            ${locator}    Catenate    SEPARATOR=    ${Filter_option_checkbox}    ${Option}    ${Filter_option_checkbox_suffix}
+            ${staus}    Get Checkbox State    ${locator}  
+            Run Keyword And Continue On Failure    Should Be True    ${staus}    msg=Checkbox for option ${element} is not selected    
+            ${clicked}=    Run Keyword And Return Status    Click    ${locator}
+            Run Keyword And Continue On Failure    Should Be True    ${clicked}    msg=Could not uncheck checkbox for option ${element}
+            press Keys    ${Transaction_filter_button}    Escape
+            Sleep    2s
+            ${Transaction_element}    Get Elements    ${transaction_type_value}
+            FOR    ${element}    IN    @{Transaction_element}
+                ${value}    Get Text    ${element}
+                ${value}    strip String    ${value}
+                Run Keyword And Continue On Failure    Should Not Be Equal    ${value}    ${Option}    msg=Filtered value ${value} is still displayed after unchecking ${Option} option
+            END
+            Click    ${Transaction_filter_button}
+            ${clicked}=    Run Keyword And Return Status    Click    ${locator}
+            Run Keyword And Continue On Failure    Should Be True    ${clicked}    msg=Could not uncheck checkbox for option ${element}
+            press Keys    ${Transaction_filter_button}    Escape
+        END
+    END
+    Log    Expected Options: ${expected_options}
+    Log    Actual Options: ${Actual_options}
+    ${status}    Run Keyword And Return Status    Should Be Equal    ${Actual_options}    ${expected_options}
+    Run Keyword And Continue On Failure    Should Be True    ${status}    TransactionType option are mismatch in allsummission page       
+
+
+verify Broker LLM EXTRACTION is Enabled or not 
+    [Documentation]    Verifies that Broker LLM EXTRACTION is present for MSIG clients.
+    [Arguments]    ${user_name}
+
+    ${click_clients}=    Run Keyword And Return Status    Click    ${Clients_button}
+    Run Keyword And Continue On Failure    Should Be True    ${click_clients}    msg=Failed to click Clients button
+
+    Fill Text    ${Search_clients}    ${user_name}
+
+    ${click_client_field}=    Run Keyword And Return Status    Click    ${Client_field}
+    Run Keyword And Continue On Failure    Should Be True    ${click_client_field}    msg=Failed to click client field for user ${user_name}
+
+    ${status}    Run Keyword And Return Status    Wait For Elements State    ${BROKER_LLM_extraction}    detached    msg=Email composer attachment should not be present
+    IF    '${status}' == 'True'
+        ${status}    Run Keyword And Return Status   Click    ${BROKER_LLM_extraction} 
+        Run Keyword And Continue On Failure    Should Be True    ${status}    Failed to enable the Broker LLM EXTRACTION for MSIG CLients
+    END
+    ${click_user_btn}=    Run Keyword And Return Status    Click    ${User_Button}
+    Run Keyword And Continue On Failure    Should Be True    ${click_user_btn}    msg=Failed to click User button
+
+# verify theclearance effective date and exp date
+#     [Documentation]  
+#     [Arguments]    ${Expected_date}  
+#     ${Actual_date}    Create List
+#     ${Effective_date}    Get Attribute    ${Clearnce_effective_Date}    value
+#     ${Effective_date}    Strip String    ${Effective_date}
+#     Log    ${Effective_date}
+#     ${Exp_date}    Get Attribute    ${clearance_exp_date}    value
+#     ${Exp_date}    Strip String    ${Exp_date}
+#     Log    ${Exp_date}
+#     Append To List    ${Actual_date}     ${Effective_date}    
+#     Append To List    ${Actual_date}     ${Exp_date}
+Verify The Clearance Effective Date And Exp Date
+    [Documentation]
+    [Arguments]    ${Expected_date}
+    ${Actual_date}=    Create List
+
+    ${Effective_date}=    Get Attribute    ${Clearnce_effective_Date}    value
+    ${Effective_date}=    Strip String    ${Effective_date}
+    ${Effective_date}=    Convert Date    ${Effective_date}    result_format=%m/%d/%Y
+    Log    Effective: ${Effective_date}
+
+    ${Exp_date}=    Get Attribute    ${clearance_exp_date}    value
+    ${Exp_date}=    Strip String    ${Exp_date}
+    ${Exp_date}=    Convert Date    ${Exp_date}    result_format=%m/%d/%Y
+    Log    Expiry: ${Exp_date}
+
+    Append To List    ${Actual_date}    ${Exp_date}
+    Append To List    ${Actual_date}    ${Effective_date}
+   
+
+    ${status}    Run Keyword And Return Status    Lists Should Be Equal    ${Expected_date}    ${Actual_date}
+    Run Keyword And Continue On Failure    Should Be True    ${status}    forms date not reflected in the clearance tab 
+
+Switch to Convr Task tab
+    [Documentation]    Switches to the Convr Task tab.
+    ${status}    Run Keyword And Return Status    Wait For Elements State    ${Convr_Task_tab}    visible    timeout=${element_timeout}
+    Run Keyword And Continue On Failure    should be True    ${status}    msg=Convr Task tab is not visible
+    ${clicked}=    Run Keyword And Return Status    Click    ${Convr_Task_tab}
+    Run Keyword And Continue On Failure    Should Be True    ${clicked}    msg=Failed to click Convr Task tab
+    Click All tasks option
+
+Verify the filter option in Convr Submission page
+    [Documentation]    This method is used to verify the Account filter in Convr Submission page
+    [Arguments]    ${Column_header}    ${expected_options}        
+    select the Options as per given data in Submission page    All submissions
+    sleep    2s
+    Rearrange Submission Page Columns    ${Column_header}
+    ${Cell_value_locator}    Catenate    SEPARATOR=    ${Cell_value}    ${expected_options}']
+    ${Cell_value_element}    Get Elements    ${Cell_value_locator}
+    ${Count}    Get Length    ${Cell_value_element}
+    ${Actual_options_value}    Create List
+    FOR    ${element}    IN RANGE    0    ${Count}
+       
+        ${option_text}    Get Text    ${Cell_value_element}[${element}]
+        strip String    ${option_text}
+        Run Keyword If    '${option_text}' == ' '    Continue For Loop
+        Append To List    ${Actual_options_value}    ${option_text}
+        # ${Actual_options_value}=    Remove Duplicates    ${Actual_options_value}
+    END
+    ${Actual_options_value}=    Remove Duplicates    ${Actual_options_value}
+
+    FOR    ${fill_value}    IN    @{Actual_options_value}
+        ${locator}    Catenate    SEPARATOR=    ${filter_apply_button_prefix}    ${expected_options}    ${filter_apply_button_suffix} 
+        ${status}    Run Keyword And Return Status    Wait For Elements State    ${locator}    visible    timeout=${element_timeout}
+        Run Keyword And Continue On Failure    should be True    ${status}    msg=Account filter button is not visible
+        ${clicked}=    Run Keyword And Return Status    Click    ${locator}
+        Run Keyword And Continue On Failure    Should Be True    ${clicked}    msg=Failed to click Account filter button
+        ${status}    Run Keyword And Return Status    Wait For Elements State    ${Filter_input}    visible    timeout=${element_timeout}
+        Run Keyword And Continue On Failure    should be True    ${status}    msg=Account filter input is not visible
+        ${status}    Run Keyword And Return Status    fill Text    ${Filter_input}    ${fill_value}
+        should be True    ${status}    msg=Could not fill text in Account filter input
+        Sleep    2s
+        Press Keys    ${locator}    Escape
+        Sleep    2s
+        ${Cell_value_locator}    Catenate    SEPARATOR=    ${Cell_value}    ${expected_options}']
+        ${Cell_value_element}    Get Elements    ${Cell_value_locator}
+        ${Actual_options}    Create List
+            FOR    ${element}    IN    @{Cell_value_element}
+                ${option_text}    Get Text    ${element}
+                strip String    ${option_text}
+                
+                Append To List    ${Actual_options}    ${option_text}
+                
+            END
+            ${Actual_options}=    Remove Duplicates    ${Actual_options}
+            FOR    ${Actual_value}    IN    @{Actual_options}
+            Log    ${Actual_value}
+            log    ${fill_value}
+            ${status}    Run Keyword And Return Status    Should Be Equal    ${Actual_value}    ${fill_value}    msg=Filtered value ${Actual_value} does not match expected value ${fill_value} filter option is not working as expected
+            Run Keyword And Continue On Failure    should be True    ${status}    msg=Filtered value ${Actual_value} does not match expected value ${fill_value} : filter option is not working as expected
+            END
+
+    END
+
+verify the Checkbox Type filter in Convr Submission page
+    [Documentation]    This method is used to verify the Transation Type filter in Convr Submission page
+    [Arguments]    ${Column_header}    ${expected_options}    ${expected_options_value}    
+    select the Options as per given data in Submission page    All tasks
+    sleep    2s
+    Rearrange Submission Page Columns    ${Column_header}
+    ${Cell_value_locator}    Catenate    SEPARATOR=    ${Cell_value}    ${expected_options}']
+    ${Cell_value_element}    Get Elements    ${Cell_value_locator}
+    ${Count}    Get Length    ${Cell_value_element}
+    ${Actual_options_value}    Create List
+    FOR    ${element}    IN RANGE    0    ${Count}
+        ${text}    Get Text    ${Cell_value_element}[${element}]
+        strip String    ${text}
+        ${has_newline}=    Run Keyword And Return Status    Should Contain    ${text}    \n
+         ${is_empty}=    Run Keyword And Return Status    Should Be Empty    ${text}
+         ${has_comma}=    Run Keyword And Return Status    Should Contain    ${text}    ,
+        IF    ${has_newline}
+            ${lines}=    Split String    ${text}    \n
+            ${last_line}=    Get From List    ${lines}    -1
+            ${last_line}=    Strip String    ${last_line}
+            ${clean}=    Set Variable    ${last_line}
+            Append To List    ${Actual_options_value}    ${clean}
+        ELSE IF    ${is_empty}
+            Continue For Loop
+        ELSE IF    ${has_comma}
+            ${items}=    Split String    ${text}    , 
+            FOR    ${item}    IN    @{items}
+                ${clean}=    Strip String    ${item}
+                Append To List    ${Actual_options_value}    ${clean}
+            END
+        ELSE 
+        ${text}=    Strip String    ${text}
+        Append To List    ${Actual_options_value}    ${text}
+           
+        END
+
+    END
+    ${Actual_options_value}=    Remove Duplicates    ${Actual_options_value}
+    Log    ${Actual_options_value}
+    ${Filter_locator}    Catenate    SEPARATOR=    ${filter_apply_button_prefix}    ${expected_options}    ${filter_apply_button_suffix} 
+    ${status}    Run Keyword And Return Status    Wait For Elements State    ${Filter_locator}    visible    timeout=${element_timeout}
+    Run Keyword And Continue On Failure    should be True    ${status}    msg=Account filter button is not visible
+    ${clicked}=    Run Keyword And Return Status    Click    ${Filter_locator}
+    Run Keyword And Continue On Failure    Should Be True    ${clicked}    msg=Failed to click Account filter button
+    ${options_elements}    Get Elements    ${Transaction_type_options}
+    ${Actual_options}    Create List
+    FOR    ${element}    IN    @{options_elements}
+        ${option_text}    Get Text    ${element}
+        strip String    ${option_text}
+        Append To List    ${Actual_options}    ${option_text}
+    END
+    FOR    ${element}    IN    @{Actual_options}
+        ${locator}    Catenate    SEPARATOR=    ${Filter_option_checkbox}    ${element}    ${Filter_option_checkbox_suffix}
+        ${staus}    Get Checkbox State    ${locator}  
+        IF    '${staus}' == 'True'
+            Uncheck Checkbox    ${locator}    
+        END
+    END
+            Press Keys    ${Filter_locator}    Escape
+        FOR    ${Option}    IN    @{Actual_options_value}   
+            Click    ${Filter_locator}
+            Fill Text    ${check_box_filter_field}    ${Option}
+            ${locator}    Catenate    SEPARATOR=    ${Filter_option_checkbox}    ${Option}    ${Filter_option_checkbox_suffix}
+            ${staus}    Get Checkbox State    ${locator}  
+            Run Keyword And Continue On Failure    Should Not Be True    ${staus}    msg=Checkbox for option ${Option} is not selected    
+            ${clicked}=    Run Keyword And Return Status    Click    ${locator}
+            Run Keyword And Continue On Failure    Should Be True    ${clicked}    msg=Could not uncheck checkbox for option ${element}
+            press Keys    ${Filter_locator}    Escape
+            Sleep    2s
+            ${Transaction_element}    Get Elements    ${Cell_value_locator}
+            Should Not Be Empty    ${Transaction_element}    The filter option is not working fine for this column : ${Column_header} and This value ${Option} 
+            FOR    ${element}    IN    @{Transaction_element}
+                ${value}    Get Text    ${element}
+                ${value}    strip String    ${value}
+                Run Keyword And Continue On Failure    Should Contain    ${value}    ${Option}    msg=Filtered value ${value} is still displayed after unchecking ${Option} option
+            END
+                Click    ${Filter_locator}
+                ${clicked}=    Run Keyword And Return Status    Click    ${locator}
+                Run Keyword And Continue On Failure    Should Be True    ${clicked}    msg=Could not uncheck checkbox for option ${element}
+                press Keys    ${Filter_locator}    Escape
+        
+        END
+    Log    Expected Options: ${expected_options_value}
+    Log    Actual Options: ${Actual_options}
+    # ${status}    Run Keyword And Return Status    Should Be Equal    ${Actual_options}    ${expected_options}
+    # Run Keyword And Continue On Failure    Should Be True    ${status}    TransactionType option are mismatch in allsummission page        
+
+
+
+
+  
+verify the Checkbox Type filter in Convr Task page
+    [Documentation]    This method is used to verify the Transation Type filter in Convr Submission page
+    [Arguments]    ${Column_header}    ${expected_options}    ${expected_options_value}    
+    select the Options as per given data in Submission page    All tasks
+    sleep    2s
+    Rearrange Submission Page Columns    ${Column_header}
+    ${Cell_value_locator}    Catenate    SEPARATOR=    ${Cell_value}    ${expected_options}']
+    ${Cell_value_element}    Get Elements    ${Cell_value_locator}
+    ${Count}    Get Length    ${Cell_value_element}
+    ${Actual_options_value}    Create List
+    FOR    ${element}    IN RANGE    0    ${Count}
+        ${text}    Get Text    ${Cell_value_element}[${element}]
+        strip String    ${text}
+        Run Keyword If    '${text}' == ' '    Continue For Loop
+        Run Keyword If    '${text}' == ''    Continue For Loop
+
+        ${has_comma}=    Run Keyword And Return Status    Should Contain    ${text}    ,
+
+        IF    ${has_comma}
+        ${items}=    Split String    ${text}    , 
+            FOR    ${item}    IN    @{items}
+                ${clean}=    Strip String    ${item}
+                Append To List    ${Actual_options_value}    ${clean}
+            END
+        ELSE
+            ${clean}=    Strip String    ${text}
+             Append To List    ${Actual_options_value}    ${clean}
+        END
+    END
+    ${Actual_options_value}=    Remove Duplicates    ${Actual_options_value}
+    Log    ${Actual_options_value}
+    ${Filter_locator}    Catenate    SEPARATOR=    ${filter_apply_button_prefix}    ${expected_options}    ${filter_apply_button_suffix} 
+    ${status}    Run Keyword And Return Status    Wait For Elements State    ${Filter_locator}    visible    timeout=${element_timeout}
+    Run Keyword And Continue On Failure    should be True    ${status}    msg=Account filter button is not visible
+    ${clicked}=    Run Keyword And Return Status    Click    ${Filter_locator}
+    Run Keyword And Continue On Failure    Should Be True    ${clicked}    msg=Failed to click Account filter button
+    ${options_elements}    Get Elements    ${Transaction_type_options}
+    ${Actual_options}    Create List
+    FOR    ${element}    IN    @{options_elements}
+        ${option_text}    Get Text    ${element}
+        strip String    ${option_text}
+        Append To List    ${Actual_options}    ${option_text}
+    END
+    FOR    ${element}    IN    @{Actual_options}
+        ${locator}    Catenate    SEPARATOR=    ${Filter_option_checkbox}    ${element}    ${Filter_option_checkbox_suffix}
+        ${staus}    Get Checkbox State    ${locator}  
+        IF    '${staus}' == 'True'
+            Uncheck Checkbox    ${locator}    
+        END
+    END
+            Press Keys    ${Filter_locator}    Escape
+        FOR    ${Option}    IN    @{Actual_options_value}   
+            Click    ${Filter_locator}
+            Fill Text    ${check_box_filter_field}    ${Option}
+            ${locator}    Catenate    SEPARATOR=    ${Filter_option_checkbox}    ${Option}    ${Filter_option_checkbox_suffix}
+            ${staus}    Get Checkbox State    ${locator}  
+            Run Keyword And Continue On Failure    Should Not Be True    ${staus}    msg=Checkbox for option ${Option} is not selected    
+            ${clicked}=    Run Keyword And Return Status    Click    ${locator}
+            Run Keyword And Continue On Failure    Should Be True    ${clicked}    msg=Could not uncheck checkbox for option ${element}
+            press Keys    ${Filter_locator}    Escape
+            Sleep    2s
+            ${Transaction_element}    Get Elements    ${Cell_value_locator}
+            FOR    ${element}    IN    @{Transaction_element}
+                ${value}    Get Text    ${element}
+                ${value}    strip String    ${value}
+                Run Keyword And Continue On Failure    Should Contain    ${value}    ${Option}    msg=Filtered value ${value} is still displayed after unchecking ${Option} option
+            END
+                Click    ${Filter_locator}
+                ${clicked}=    Run Keyword And Return Status    Click    ${locator}
+                Run Keyword And Continue On Failure    Should Be True    ${clicked}    msg=Could not uncheck checkbox for option ${element}
+                press Keys    ${Filter_locator}    Escape
+        
+        END
+    Log    Expected Options: ${expected_options_value}
+    Log    Actual Options: ${Actual_options}
+    # ${status}    Run Keyword And Return Status    Should Be Equal    ${Actual_options}    ${expected_options}
+    # Run Keyword And Continue On Failure    Should Be True    ${status}    TransactionType option are mismatch in allsummission page        

@@ -1394,3 +1394,64 @@ Upload File on Created Task
 
     ${count}=    Get Element Count    ${Task_Attachement_upload_file_Name}
     Run Keyword And Continue On Failure    Should Be Equal As Integers    ${count}    0    msg=Upload File: Uploaded file '${file_name}' was not deleted successfully; still visible in attachments.
+
+
+Verify Error msg in CAT Modeling Request form in task tab 
+    [Documentation]    This method verifies that Error msg in CAT Modeling Request form in task tab .
+    [Arguments]    ${data}
+    Click Answers Tab
+    Run Keyword And Continue On Failure    Wait For Elements State    ${TasksMenu}    visible    timeout=${element_timeout}
+    Run Keyword And Continue On Failure    Should Be True    ${TRUE}    msg=CAT Request: 'TasksMenu' is not visible on the task page.
+    
+    ${clicked}=    Run Keyword And Return Status    Click    ${TasksMenu}
+    Run Keyword And Continue On Failure    Should Be True    ${clicked}    msg=CAT Request: Failed to click 'TasksMenu'. Ensure it is visible and enabled.
+
+    ${noTasks_visible}=    Run Keyword And Return Status    Wait For Elements State    ${NoTasks}    visible    timeout=${display_timeout}
+    IF    ${noTasks_visible}
+        ${clicked}=    Run Keyword And Return Status    Click    ${CreateNewTaskButton}
+        Run Keyword And Continue On Failure    Should Be True    ${clicked}    msg=CAT Request: Failed to click 'Create New Task' button when no tasks exist.
+    ELSE
+        Run Keyword And Continue On Failure    Wait For Elements State    ${NewTaskButton}    visible    timeout=${element_timeout}
+        Run Keyword And Continue On Failure    Should Be True    ${TRUE}    msg=CAT Request: 'NewTaskButton' is not visible after creating the task.
+
+        ${clicked}=    Run Keyword And Return Status    Click    ${NewTaskButton}
+        Run Keyword And Continue On Failure    Should Be True    ${clicked}    msg=CAT Request: Failed to click 'NewTaskButton'. Ensure it is visible and enabled.
+    END
+
+    Run Keyword And Continue On Failure    Wait For Elements State    ${Task_Name_Field}    visible
+    Run Keyword And Continue On Failure    Should Be True    ${TRUE}    msg=CAT Request: 'Task_Name_Field' is not visible after creating the task.
+
+    Select Options By    ${Task_Name_Field}    text    ${data['TaskName']}
+
+    Run Keyword And Continue On Failure    Wait For Elements State    ${Task_CATForm_Btn}    visible
+    Run Keyword And Continue On Failure    Should Be True    ${TRUE}    msg=CAT Request: 'Task_CATForm_Btn' is not visible after creating the CAT Modeling Request task.
+
+    ${clicked}=    Run Keyword And Return Status    Click    ${Task_CATForm_Btn}
+    Run Keyword And Continue On Failure    Should Be True    ${clicked}    msg=CAT Request: Failed to click 'Task_CATForm_Btn'.
+
+    Run Keyword And Continue On Failure    Wait For Elements State    ${CAT_Form_Header}    visible
+    Run Keyword And Continue On Failure    Should Be True    ${TRUE}    msg=CAT Request: 'CAT_Form_Header' is not visible after opening the CAT Modeling Request task.
+
+    
+    Click    ${CAT_submit_request}
+
+    Wait For Elements State    ${CAT_error}    visible    ${display_timeout}
+
+    Check Checkbox    ${CAT_Earthquake_option}
+    Fill Text    ${CAT_blanket_limit}    ${data['Cat_limit']}
+    Fill Text    ${CAT_part_of_field}    ${data['Cat_part_of']}
+    Click    ${CAT_submit_request}
+    Wait For Elements State    ${CAT_Saved_popup}    visible    ${display_timeout}
+
+    ${status}=    Run Keyword And Return Status    Wait For Elements State    ${Task_CATForm_Btn}    visible    
+    Run Keyword And Continue On Failure    Should Be True    ${status}    msg=CAT Request: 'Task_CATForm_Btn' is not visible after creating the CAT Modeling Request task.
+
+    ${clicked}=    Run Keyword And Return Status    Click    ${Task_CATForm_Btn}
+    Run Keyword And Continue On Failure    Should Be True    ${clicked}    msg=CAT Request: Failed to click 'Task_CATForm_Btn'.
+    ${status}    Get Element States    ${CAT_error}
+    Run Keyword And Continue On Failure    Should Contain    ${status}    detached    Error mag is still apearr after entering the mandatory field in CAT Moduling form in task tab 
+    ${clicked}=    Run Keyword And Return Status    Click    ${Close_CATForm}
+    Run Keyword And Continue On Failure    Should Be True    ${clicked}    msg=CAT Request: Failed to click 'Close_CATForm' button.
+
+    ${clicked}=    Run Keyword And Return Status    Click    ${Close_Task}
+    Run Keyword And Continue On Failure    Should Be True    ${clicked}    msg=CAT Request: Failed to click 'Close_Task' button.

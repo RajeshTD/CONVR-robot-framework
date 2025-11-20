@@ -206,7 +206,8 @@ TC_E2E_001 = {
         "ExceptedCATReqHeader":["Perils *","Part Of *","Excess Of","Blanket Limit *","Limit","Deductible Type","Deductible"],
         "SummaryTableHeader":['Product','Status','Eff. Date','Exp. Date','Assigned','Exp. Premium','Agency'],
         # "SummaryTableData":['General Liability\nCurrent','Wholesale Team\nCurrent','In Draft','10/01/2017','10/01/2018','-','-','HYLANT GROUP, INC.'],
-        "CATFormHeader":"Submission/Policy Number","CATReqHeader":["Perils ","Part Of ","Excess Of","Blanket Limit ","Limit","Deductible Type","Deductible"],
+        "CATFormHeader":"Submission/Policy Number",
+        "CATReqHeader":["Perils ","Part Of ","Excess Of","Blanket Limit ","Limit","Deductible Type","Deductible"],
         "TaskName":"CAT Modeling Request",
         "TaskNamesList":["Select your task name","Account Maintenance","Account Setup","Bind AIR","Book Premium Setup","Cancel / Re-Write","CAT Modeling Request",
         "Complete CoreLogic","Complete Endorsement","Complete Prometrix","Complete SwiftRe","Compliance Review","Conditional Processing",
@@ -218,7 +219,11 @@ TC_E2E_001 = {
  "excepted_Field" :["Summary","Answers","Risk360","Documents","Clearance","Tasks","Email","Forms"],
  "Attacment_value":{"AttachmentText":"Test",
 "AttachmentPointValue":"12345",
-"AttachmentPointMaximum":"123456789012345"}
+"AttachmentPointMaximum":"123456789012345"},
+
+
+
+
 }
 TC_E2E_002 = {
     "FileName":"ACORD125-MSIG.pdf",
@@ -8079,5 +8084,77 @@ TC_E2E_207={
     },
     "sic_code":"",
     "NAICS_code":"238150",
+    "CAT_moduleing":{
+            "TaskName":"CAT Modeling Request",
+            "Cat_limit":"Test",
+            "Cat_part_of":"Test"
 }
- 
+}
+TC_E2E_071={
+    "Broker_file_name":"",
+    "FileName":"ACORD125-MSIG.pdf",
+    "SubmissionColumnNames": ["Status", "Submission", "Submission ID","Product","Workflow Status"],
+    "Convr_task_headers":['submission.renewalFlag','submission.displayName','name','createdBy.name','assignedTo.name','createdTs','dueTs','submission.displayName','referenceId'],
+    "Transaction_value":['(Select All)', 'New Business', 'Renewal'],
+    "Details":"Details",
+    "Comment_value":"@MSIG",
+    "taskdata":{
+        "TaskNameDropdown":"Custom",
+        "customName": "Test Automation",
+        "taskName":"Test Automation",
+        "taskDetails":"Test",
+        "taskReason":"Complete",
+        "dueTime":"14:21",
+        "assignee":"MSIG TEST",
+        "taskDetails":"Test",
+        "taskReason":"Complete",
+        "priority": "Low",
+    },
+    "SummaryTableHeader":['Product','Status','Eff. Date','Exp. Date','Assigned','Exp. Premium','Agency'],
+    "EFFdate":"0",
+    "expdate":"1",
+    "Score_Column_header":"Score",
+    "Score_options":"score",
+    
+}
+TC_email_060={
+    "eml_no_data":{
+    "file_name":"eml_no_attachments_1.eml",
+    "expected_data":['7.8 kB','email_body','394f9401-ac49-4e63-b1fe-d50c1577e66a','0bc0004a-ec24-428e-a945-eff195607c7a','message/rfc822','completed','false','N/A'],
+    "More_fields":['Info','Download','Stop','Reprocess','Report','Delete'],
+    "Expected_email_Msg":"Please order MVR’s for the above new policy. Thank you, Wendy Garrison CX Insurance Services This e-mail is intended only for the person or entity to whom it is addressed and may contain information that is privileged, confidential, or otherwise protected from disclosure. If you are not the intended recipient, or an employee or agent responsible for delivering this message to the intended recipient, you are notified that any disclosure, copying, distribution, or the taking of any action in reliance on the contents of this message is prohibited. If you have received this e-mail in error, please contact the sender immediately and delete the original message and all copies from your system. Statements and representations made in this message are not necessarily that of the Company.",
+    "info_fields":['Filename','Size','Type','Asset ID','Parent Asset ID','Content Type', 'Created','Updated','Status','OCR Flag','OCR Score','Path'],
+    "document_type":['email_body','unknown'],
+    },
+    "eml_normal_data":{
+    "file_name":"eml_normal_attachments_1.eml",
+    "expected_data":['277.9 kB','email_body','781f5a6d-ecad-4854-ae5d-251dfd9d7481','aebd28fe-9496-4a7e-acfc-f5b558afb8f2','message/rfc822','completed','false','N/A'],
+    "More_fields":['Info','Download','Stop','Reprocess','Report','Delete'],
+    "Expected_email_Msg":"--EXTERNAL EMAIL-- Hello, Please process the attached policy change request effective 7/25/19. Best Regards, Vincent De Leon ADMINISTRATIVE SUPPORT TEAM norman-spencer.com Click to see our most recent newspaper at http://norman-spencer.com/newspaper Norman-Spencer Agency, Inc. 8075 Washington Village Dr. Dayton, OH 45458 In California: Norman-Spencer Insurance Agency License #0B64551 Please note that NO coverage is changed or bound until approved by the carrier and written confirmation is sent to you. Coverage cannot be assumed if you do not receive confirming documentation from our office. DISCLAIMER: Use of email is inherently insecure. We do not guarantee the accuracy of any email or email attachment or that an email will be received by an employee or that we will respond to any email. This email message is confidential and/or privileged. Use of the information contained in this email by anyone other than the intended recipient is strictly prohibited. If you have received this message in error, please notify the sender immediately and promptly destroy any record of this email. The information transmitted in this email and any email attachments does not necessarily represent our views. We have made all reasonable efforts to ensure that this email and any attachments are free from viruses but it is the responsibility of the recipient to carry out all necessary virus checks and we cannot accept any liability in connection therewith. This e-mail is intended only for the person or entity to whom it is addressed and may contain information that is privileged, confidential, or otherwise protected from disclosure. If you are not the intended recipient, or an employee or agent responsible for delivering this message to the intended recipient, you are notified that any disclosure, copying, distribution, or the taking of any action in reliance on the contents of this message is prohibited. If you have received this e-mail in error, please contact the sender immediately and delete the original message and all copies from your system. Statements and representations made in this message are not necessarily that of the Company.",
+    "info_fields":['Filename','Size','Type','Asset ID','Parent Asset ID','Content Type', 'Created','Updated','Status','OCR Flag','OCR Score','Path'],
+    "document_type":['email_body','unknown'],
+    },
+    "eml_pdf_plus_nameless":{
+    "file_name":"eml_pdf_plus_nameless_1.eml",
+    "expected_data":['1.0 kB','email_body','781f5a6d-ecad-4854-ae5d-251dfd9d7481','aebd28fe-9496-4a7e-acfc-f5b558afb8f2','text/plain','completed','false','N/A'],
+    "More_fields":['Info','Download','Stop','Reprocess','Report','Delete'],
+    "Expected_email_Msg":" This is a test email with two attachments: - a PDF - an EML without filename",
+    "info_fields":['Filename','Size','Type','Asset ID','Parent Asset ID','Content Type', 'Created','Updated','Status','OCR Flag','OCR Score','Path'],
+    "document_type":['email_body','unknown'],
+    },
+    "eml_normal_plus":{
+    "file_name":"eml_normal_plus_wmz_1.eml",
+    "expected_data":['1.0 kB','email_body','781f5a6d-ecad-4854-ae5d-251dfd9d7481','aebd28fe-9496-4a7e-acfc-f5b558afb8f2','message/rfc822','completed','false','N/A'],
+    "More_fields":['Info','Download','Stop','Reprocess','Report','Delete'],
+    "Expected_email_Msg":"Please clear GL Thank you, [Morstan-300x214] Andrew Makabali Team Leader Commercial Lines Underwriter Morstan General Agency, a Division of Hull & Co. 1985 Marcus Avenue, Suite 201 New Hyde Park, NY 11042 p: (516) 488-4747 ext. 3305 or Direct line 516-787-8408 | e: amakabali@morstan.com | Please note: NO coverage can be bound by voice message, fax or e-mail. Coverage may only be bound by confirmation of Morstan Underwriters in writing. Please forward certificate requests to: bpersaud@morstan.com Please forward endorsement requests to: bpersaud@morstan.com AGENCY BILL CHECKS should be mailed to the below address. MORSTAN GENERAL AGENCY, PO BOX 788277, Philadelphia, PA 19178-8277 Please note our new mailing address for correspondence – PO Box 9005 New Hyde Park, NY 11040 ***Our team is currently working remotely. I can be reached easiest on my cell phone at this time. Please remember that insurance coverage cannot be bound, amended or canceled by leaving an electronic or voice mail message. From: Pessy (Peace of Mind Insurance) Sent: Thursday, February 4, 2021 5:59 PM To: Andrew Makabali Cc: Zissy (Peace of Mind Insurance) Subject: 1 Arnold Drive Industrial LLC - 1 Arnold Drive - New Submission - QUOTE NEEDED ASAP! [External] Hi, Please quote the attached submission for the above mentioned account. 1 story commercial building with mezzanine. Please try to be as competitive as possible. Thank You, [Peace of Mind Insurance]Pessy | Insurance Rep. 2 Skillman Street – Ste #308 Brooklyn, NY 11205 Pessy@peaceofmindinsurance.com P: 718.972.MIND(6463)EXT110 F: 718.972.6464",
+    "info_fields":['Filename','Size','Type','Asset ID','Parent Asset ID','Content Type', 'Created','Updated','Status','OCR Flag','OCR Score','Path'],
+    "document_type":['email_body','unknown'],
+    },
+    "KIPP_Miami_Inc":{
+     "file_name":"KIPP_Miami_Inc.msg",   
+    "filenames":['1._KIPP_Miami_-_2025_Policy_Wording.pdf','2._KIPP_Miami_-_2025_Proposed_Follow_Form_Drop-down_eliminated_for_non-FLAKE_layers.doc',
+    '3._KIPP_Miami_-_2025_Statement_of_Values.xlsx','Risk_Based_Testing_with_Copilot.pptx','Meeting_ID.txt',
+    '2026_Tepro_Property_Exposures_-_Updated.xls','87093_For_Renewal_submission_system_hides_all_the_tabs__buttons_Air_Template_Schema_gen__Rater_.docx',
+    'Brandonview_LLC_-_MSIG_Commercial_Property_Rater.xlsm','6b2agacgh8eus8q5iskbqnc0b6s1r60sbg7pp8g1_1.eml'],
+    }
+} 

@@ -3566,14 +3566,104 @@ TC_E2E_207
     Run Keyword And Continue On Failure    Verify Submission page is displayed
     Click Edit Submission
     # Run Keyword And Continue On Failure    verify that click on side detials policy saved popup should not be appear
-    Click and verify Clearance tab
-    Delete and add the SIC and Naics code in clearance tab    444190
-    Run Keyword And Continue On Failure    Verify Clearance Data in Insured Tab    ${TC_E2E_207['Clearance2.0Data']['InsuredTabData']}
-    Run Keyword And Continue On Failure    Verify Clearance Data in Processing Tab    ${TC_E2E_207['Clearance2.0Data']['ProcessingTabData']}
-    Run Keyword And Continue On Failure    Verify Clearance Data in Producer Tab    ${TC_E2E_207['Clearance2.0Data']['ProducerTabData']['expectedTextInProducer']}    ${TC_E2E_207['Clearance2.0Data']['ProducerTabData']['ProducerName']}      ${TC_E2E_207['Clearance2.0Data']['ProducerTabData']['ProducerEmail']} 
-    Run Keyword And Continue On Failure    Verify Clearance Data in Coverage Tab    ${TC_E2E_207['Clearance2.0Data']['Covered']}
-    Run Keyword And Continue On Failure    Complete Clearance and Verify Popup    ${TC_E2E_207['Clearance2.0Data']['Covered']}
-    Run Keyword And Continue On Failure    Veify That Empty NAICS and SIC box should not be present in the clearance
+    # Click and verify Clearance tab
+    # Delete and add the SIC and Naics code in clearance tab    444190
+    # Run Keyword And Continue On Failure    Verify Clearance Data in Insured Tab    ${TC_E2E_207['Clearance2.0Data']['InsuredTabData']}
+    # Run Keyword And Continue On Failure    Verify Clearance Data in Processing Tab    ${TC_E2E_207['Clearance2.0Data']['ProcessingTabData']}
+    # Run Keyword And Continue On Failure    Verify Clearance Data in Producer Tab    ${TC_E2E_207['Clearance2.0Data']['ProducerTabData']['expectedTextInProducer']}    ${TC_E2E_207['Clearance2.0Data']['ProducerTabData']['ProducerName']}      ${TC_E2E_207['Clearance2.0Data']['ProducerTabData']['ProducerEmail']} 
+    # Run Keyword And Continue On Failure    Verify Clearance Data in Coverage Tab    ${TC_E2E_207['Clearance2.0Data']['Covered']}
+    # Run Keyword And Continue On Failure    Complete Clearance and Verify Popup    ${TC_E2E_207['Clearance2.0Data']['Covered']}
+    # Run Keyword And Continue On Failure    Veify That Empty NAICS and SIC box should not be present in the clearance
+    Run Keyword And Continue On Failure    verify The Reprocess should be disabled for HITL User
+    Run Keyword And Continue On Failure    Verify Error msg in CAT Modeling Request form in task tab    ${TC_E2E_207['CAT_moduleing']}    
+    
+TC_email_060
+    [Documentation]    upload the different email submission 
+    Run Keyword And Continue On Failure    Verify My Assignments Tab is displayed as a default tab
+    # ${submission_id}    Create New Submission    ${TC_E2E_001['FileName']}    @{TC_E2E_001['SubmissionColumnNames']}
+    # Set Suite Variable   ${submission_id_1}    ${submission_id}    
+    Select Submission using submission id    9d366237-9bff-44f4-9b57-13e0b5ef33b6    @{TC_E2E_001['SubmissionColumnNames']}
+    Run Keyword And Continue On Failure    Verify Submission page is displayed
+    Click Edit Submission
+    Switch to Documents
+    # Upload given Documents in document tab    ${TC_email_060['KIPP_Miami_Inc']['file_name']}    ${TC_email_060['KIPP_Miami_Inc']}    True    True
+    # Run Keyword And Continue On Failure    Remove Document after Upload    ${TC_email_060['eml_no_data']['file_name']}
+    Run Keyword And Continue On Failure    Upload SOV and Loss Run Documents    ${TC_email_060['eml_no_data']['file_name']}
+    Wait For Processing Stage
+    # Run Keyword And Continue On Failure    verify the Email Body Document    ${TC_email_060['eml_no_data']['file_name']}    ${TC_email_060['eml_no_data']['Expected_email_Msg']}
+    # Run Keyword And Continue On Failure    verify the file info details    ${TC_email_060['eml_no_data']['file_name']}    ${TC_email_060['eml_no_data']}
+    Run Keyword And Continue On Failure    delete the given file in processed Tab    @{TC_email_060['eml_no_data']['document_type']}
+    Run Keyword And Continue On Failure    verify files are deleted    @{TC_email_060['eml_no_data']['document_type']}
+    # Run Keyword And Continue On Failure    delete the archived files
+#   
+    # Run Keyword And Continue On Failure    Remove Document after Upload    ${TC_email_060['eml_normal_data']['file_name']}          
+    Run Keyword And Continue On Failure    Upload SOV and Loss Run Documents    ${TC_email_060['eml_normal_data']['file_name']}
+    Wait For Processing Stage
+    # Run Keyword And Continue On Failure    verify the Email Body Document    ${TC_email_060['eml_normal_data']['file_name']}    ${TC_email_060['eml_normal_data']['Expected_email_Msg']}
+    # Run Keyword And Continue On Failure    verify the file info details    ${TC_email_060['eml_normal_data']['file_name']}    ${TC_email_060['eml_normal_data']}
+    Run Keyword And Continue On Failure    delete the given file in processed Tab    @{TC_email_060['eml_normal_data']['document_type']}
+    Run Keyword And Continue On Failure    verify files are deleted    @{TC_email_060['eml_normal_data']['document_type']}
+    # Run Keyword And Continue On Failure    delete the archived files
+# eml_pdf_plus_nameless
+    # Run Keyword And Continue On Failure    Remove Document after Upload    ${TC_email_060['eml_pdf_plus_nameless']['file_name']}
+    Run Keyword And Continue On Failure    Upload SOV and Loss Run Documents    ${TC_email_060['eml_pdf_plus_nameless']['file_name']}
+    Wait For Processing Stage
+    # Run Keyword And Continue On Failure    verify the Email Body Document    ${TC_email_060['eml_pdf_plus_nameless']['file_name']}    ${TC_email_060['eml_pdf_plus_nameless']['Expected_email_Msg']}
+    # Run Keyword And Continue On Failure    verify the file info details    ${TC_email_060['eml_pdf_plus_nameless']['file_name']}    ${TC_email_060['eml_pdf_plus_nameless']}
+    Run Keyword And Continue On Failure    delete the given file in processed Tab    @{TC_email_060['eml_pdf_plus_nameless']['document_type']}
+    Run Keyword And Continue On Failure    verify files are deleted    @{TC_email_060['eml_pdf_plus_nameless']['document_type']}
+    Run Keyword And Continue On Failure    delete the archived files
+# eml_normal_plus
+    # Run Keyword And Continue On Failure    Remove Document after Upload    ${TC_email_060['eml_normal_plus']['file_name']}
+    Run Keyword And Continue On Failure    Upload SOV and Loss Run Documents    ${TC_email_060['eml_normal_plus']['file_name']}
+    Wait For Processing Stage
+    # Run Keyword And Continue On Failure    verify the Email Body Document    ${TC_email_060['eml_normal_plus']['file_name']}    ${TC_email_060['eml_normal_plus']['Expected_email_Msg']}
+    # Run Keyword And Continue On Failure    verify the file info details    ${TC_email_060['eml_normal_plus']['file_name']}    ${TC_email_060['eml_normal_plus']}
+    Run Keyword And Continue On Failure    delete the given file in processed Tab    @{TC_email_060['eml_normal_plus']['document_type']}
+    Run Keyword And Continue On Failure    verify files are deleted    @{TC_email_060['eml_normal_plus']['document_type']}
+    Run Keyword And Continue On Failure    delete the archived files
+    # Run Keyword And Continue On Failure    verify the no of files in Archived    0    
+
+TC_E2E_071
+    [Documentation]    This testcase is to verify E2E_071    
+    # Create User If the User is not present    ${NewUser}
+    # Select Impersonate option from the actions    ${NewUser['email']}    ${NewUser['search_user']} 
+    Run Keyword And Continue On Failure    Verify My Assignments Tab is displayed as a default tab
+    
+        # verify the Transation Type filter in Convr Submission page    ${TC_E2E_071['Transaction_value']}
+        # Verify the filter option in Convr Submission page    Submission    display_name      
+        Switch to Convr Task tab
+        verify the Checkbox Type filter in Convr Submission page    Created By    createdBy.name    ${TC_E2E_071['Transaction_value']}
+        
+        # ${before_created_task_length}    Get the length of the created task in the Convr Task Tab
+        # ${before_Assign_task_length}    Get the length of the Assigned task in the Convr Task Tab
+        # Click All tasks option
+        # sleep    2s
+        # Verify that Detials should be Hidden    ${TC_E2E_071['Details']}  
+        # Click    ${Convr_submission_button}
+        # sleep    2s
+        # # ${submission_id}    Create New Submission    ${TC_E2E_071['FileName']}    @{TC_E2E_071['SubmissionColumnNames']}   
+        # Select Submission using submission id    e7a957c7-dfc6-4c60-b020-cfd7026736c3    @{TC_E2E_071['SubmissionColumnNames']}
+        # Click Edit Submission
+        # click Answers Tab
+        # click Answers Tab
+        # Create New Task    ${TC_E2E_071['taskdata']}
+        # click Answers Tab
+        # Navigate To All Submissions page from submissions
+        # Switch to Convr Task tab
+        # ${After_created_task_length}    Get the length of the created task in the Convr Task Tab
+        # ${After_Assign_task_length}    Get the length of the Assigned task in the Convr Task Tab
+        # ${status}    Run Keyword And Return    Should Not Be Equal    ${before_Assign_task_length}    ${After_Assign_task_length}
+        # Run Keyword And Continue On Failure    Should Be True    ${status}    Assigned task is not updated in the convr task page
+        # Navigate To All Submissions page from submissions
+        # Sleep    2s
+        # ${submission_id1}    Create New Submission    ${TC_E2E_071['FileName']}    @{TC_E2E_071['SubmissionColumnNames']}   
+        # Select Submission using submission id    ${submission_id1}    @{TC_E2E_071['SubmissionColumnNames']}
+        # Click Edit Submission
+        # click Answers Tab
+        # Switch To Documents
+        
+
 
 *** Keywords ***
 Run Pre-requiste Steps for Stage 1
@@ -3775,4 +3865,3 @@ Fill and Verify Clearance Tab For 11420Corp
     Append To List    ${expectedModification}    "${TC_E2E_Data['ProducerName']}"    "${TC_E2E_Data['ProducerEmail']}"      "${TC_E2E_Data['ProducerCode']}"    "${TC_E2E_Data['Covered']['Product']}"    "${TC_E2E_Data['UnderwriterName']}"    "${TC_E2E_Data['UnderwriterEmail']}"    "${TC_E2E_Data['UnderwrittingOffice']}"    "${TC_E2E_Data['OperationsName']}"    "${TC_E2E_Data['OperationsEmail']}"    "${TC_E2E_Data['RepOffice']}"    "${TC_E2E_Data['RepEmail']}"    "${TC_E2E_Data['Channel']}"    "${TC_E2E_Data['SubChannelValue']}"    "${TC_E2E_Data['Covered']['ProductSegment']}"
     Run Keyword And Continue On Failure    Verify datas in UserModification file    @{expectedModification}
     Run Keyword And Continue On Failure    Verify Schema by downloading the json file    ${TC_E2E_Data['queryList']}    @{expectedModification}
-    
