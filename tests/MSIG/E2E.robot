@@ -3631,8 +3631,11 @@ TC_E2E_071
     Run Keyword And Continue On Failure    Verify My Assignments Tab is displayed as a default tab
     
         # verify the Transation Type filter in Convr Submission page    ${TC_E2E_071['Transaction_value']}
-        # Verify the filter option in Convr Submission page    Submission    display_name      
+        Verify the filter option in Convr Submission page    Submission    display_name      
         Switch to Convr Task tab
+        verify the Checkbox Type filter in Convr Submission page    Transaction Type    submission.renewalFlag    ${TC_E2E_071['Transaction_value']}
+        verify the Checkbox Type filter in Convr Submission page    Created By    createdBy.name    ${TC_E2E_071['Transaction_value']}
+        verify the Checkbox Type filter in Convr Submission page    Created By    createdBy.name    ${TC_E2E_071['Transaction_value']}
         verify the Checkbox Type filter in Convr Submission page    Created By    createdBy.name    ${TC_E2E_071['Transaction_value']}
         
         # ${before_created_task_length}    Get the length of the created task in the Convr Task Tab
