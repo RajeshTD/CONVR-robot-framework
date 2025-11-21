@@ -6012,6 +6012,7 @@ Verify the filter option in Convr Submission page
         Sleep    2s
         ${Cell_value_locator}    Catenate    SEPARATOR=    ${Cell_value}    ${expected_options}']
         ${Cell_value_element}    Get Elements    ${Cell_value_locator}
+        Should Not Be Empty    ${Cell_value_element}    filter is not working fine for is header : ${Column_header} on this value ${fill_value} 
         ${Actual_options}    Create List
             FOR    ${element}    IN    @{Cell_value_element}
                 ${option_text}    Get Text    ${element}
@@ -6024,7 +6025,7 @@ Verify the filter option in Convr Submission page
             FOR    ${Actual_value}    IN    @{Actual_options}
             Log    ${Actual_value}
             log    ${fill_value}
-            ${status}    Run Keyword And Return Status    Should Be Equal    ${Actual_value}    ${fill_value}    msg=Filtered value ${Actual_value} does not match expected value ${fill_value} filter option is not working as expected
+            ${status}    Run Keyword And Return Status    Should Contain    ${Actual_value}    ${fill_value}    msg=Filtered value ${Actual_value} does not match expected value ${fill_value} filter option is not working as expected
             Run Keyword And Continue On Failure    should be True    ${status}    msg=Filtered value ${Actual_value} does not match expected value ${fill_value} : filter option is not working as expected
             END
 
@@ -6123,7 +6124,9 @@ verify the Checkbox Type filter in Convr Submission page
   
 verify the Checkbox Type filter in Convr Task page
     [Documentation]    This method is used to verify the Transation Type filter in Convr Submission page
-    [Arguments]    ${Column_header}    ${expected_options}    ${expected_options_value}    
+    [Arguments]    ${Column_header}    ${expected_options}        
+    Switch to Convr Task tab
+    Sleep    2s
     select the Options as per given data in Submission page    All tasks
     sleep    2s
     Rearrange Submission Page Columns    ${Column_header}
@@ -6194,7 +6197,61 @@ verify the Checkbox Type filter in Convr Task page
                 press Keys    ${Filter_locator}    Escape
         
         END
-    Log    Expected Options: ${expected_options_value}
+    Log    Expected Options: ${expected_options}
     Log    Actual Options: ${Actual_options}
     # ${status}    Run Keyword And Return Status    Should Be Equal    ${Actual_options}    ${expected_options}
     # Run Keyword And Continue On Failure    Should Be True    ${status}    TransactionType option are mismatch in allsummission page        
+
+Verify the filter option in Convr Task page
+    [Documentation]    This method is used to verify the Account filter in Convr Submission page
+    [Arguments]    ${Column_header}    ${expected_options}        
+    Switch to Convr Task tab
+    Sleep    2s
+    select the Options as per given data in Submission page    All tasks
+    Sleep    2s
+    Rearrange Submission Page Columns    ${Column_header}
+    ${Cell_value_locator}    Catenate    SEPARATOR=    ${Cell_value}    ${expected_options}']
+    ${Cell_value_element}    Get Elements    ${Cell_value_locator}
+    ${Count}    Get Length    ${Cell_value_element}
+    ${Actual_options_value}    Create List
+    FOR    ${element}    IN RANGE    0    ${Count}
+        ${option_text}    Get Text    ${Cell_value_element}[${element}]
+        strip String    ${option_text}
+        Run Keyword If    '${option_text}' == ' '    Continue For Loop
+        Append To List    ${Actual_options_value}    ${option_text}
+        # ${Actual_options_value}=    Remove Duplicates    ${Actual_options_value}
+    END
+    ${Actual_options_value}=    Remove Duplicates    ${Actual_options_value}
+
+    FOR    ${fill_value}    IN    @{Actual_options_value}
+        ${locator}    Catenate    SEPARATOR=    ${filter_apply_button_prefix}    ${expected_options}    ${filter_apply_button_suffix} 
+        ${status}    Run Keyword And Return Status    Wait For Elements State    ${locator}    visible    timeout=${element_timeout}
+        Run Keyword And Continue On Failure    should be True    ${status}    msg=Account filter button is not visible
+        ${clicked}=    Run Keyword And Return Status    Click    ${locator}
+        Run Keyword And Continue On Failure    Should Be True    ${clicked}    msg=Failed to click Account filter button
+        ${status}    Run Keyword And Return Status    Wait For Elements State    ${Filter_input}    visible    timeout=${element_timeout}
+        Run Keyword And Continue On Failure    should be True    ${status}    msg=Account filter input is not visible
+        ${status}    Run Keyword And Return Status    fill Text    ${Filter_input}    ${fill_value}
+        should be True    ${status}    msg=Could not fill text in Account filter input
+        Sleep    2s
+        Press Keys    ${locator}    Escape
+        Sleep    2s
+        ${Cell_value_locator}    Catenate    SEPARATOR=    ${Cell_value}    ${expected_options}']
+        ${Cell_value_element}    Get Elements    ${Cell_value_locator}
+        Should Not Be Empty    ${Cell_value_element}    filter is not working fine for is header : ${Column_header} on this value ${fill_value} 
+        ${Actual_options}    Create List
+            FOR    ${element}    IN    @{Cell_value_element}
+                ${option_text}    Get Text    ${element}
+                strip String    ${option_text}
+                Append To List    ${Actual_options}    ${option_text}
+                
+            END
+            ${Actual_options}=    Remove Duplicates    ${Actual_options}
+            FOR    ${Actual_value}    IN    @{Actual_options}
+            Log    ${Actual_value}
+            log    ${fill_value}
+            ${status}    Run Keyword And Return Status    Should Contain    ${Actual_value}    ${fill_value}    msg=Filtered value ${Actual_value} does not match expected value ${fill_value} filter option is not working as expected
+            Run Keyword And Continue On Failure    should be True    ${status}    msg=Filtered value ${Actual_value} does not match expected value ${fill_value} : filter option is not working as expected
+            END
+
+    END

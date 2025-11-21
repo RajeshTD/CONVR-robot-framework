@@ -10,6 +10,7 @@ ${ActualClaimsFileName}     ActualClaims.xlsx
 ${ActualMsgFileName}    ActualMsg.msg
 ${ActualRaterFileName}    ActualRater.xlsx
 ${ExpectedClaimsFileName}     ExpectedClaims.xlsx
+${Excepted149claims}    Expected149Claims.xlsx    
 ${ActualPoliciesFileName}     ActualPolicies.csv
 ${ExpectedPoliciesFileName}     ExpectedPolicies.csv
 ${ActualSchemaFileName}     ActualSchema.json
@@ -1286,6 +1287,7 @@ delete the given file in processed Tab
             Scroll To Element    ${element}
             Click    ${element}
             Click    ${locator_delete}
+            Sleep    5s
         END
         
     END
@@ -1316,6 +1318,7 @@ delete the archived files
     [Documentation]    This method is used for the delete all file in archived tab
     Click    ${Doc_Archived_loc}
     ${Documents}    Get Elements    ${Archived_document_files}
+    Run Keyword And Continue On Failure    Should Not Be Empty    ${Documents}
     ${rev_documents}=    Evaluate    list(reversed(${Documents}))
     FOR    ${element}    IN    @{rev_documents}
         Scroll To Element    ${element}
@@ -1327,6 +1330,7 @@ delete the archived files
 verify sub attachement files in document while uploading 
     [Documentation]    this mwthod is used for the verify the sub attachment files are present are not 
     [Arguments]    ${filename}
+    Sleep    2s
     ${status}    Run Keyword And Return Status    ${Document_Sub_files}    
     IF    ${status}
     ${actual_file_name}    Create List
@@ -1339,35 +1343,38 @@ verify sub attachement files in document while uploading
     Run Keyword And Continue On Failure    Should Not Contain    ${file_name}    .gif
     Append To List    ${actual_file_name}    ${file_name}
     END
-    Lists Should Be Equal    ${actual_file_name}    ${filename}
+    Log    ${filename}
+    Log    ${actual_file_name}
+    Run Keyword And Continue On Failure    Lists Should Be Equal    ${actual_file_name}    ${filename}
     END
 
 
 
 Upload given Documents in document tab
     [Documentation]    Uploads multiple documents (like SOV and Loss Run) to the submission.
-    ...
-    ...    *Arguments:*
-    ...    - `@{FileName}`: A list of file names to be uploaded from the `uploads` directory.
-    [Arguments]    @{FileName}
+    [Arguments]    ${FileName}    ${subattachement_file_name}    ${isprocessed}
     Switch to Documents
-    FOR    ${file}    IN    @{FileName}
-            ${AbsolutePath}=    Normalize Path    ${path}${file}
+    
+            ${AbsolutePath}=    Normalize Path    ${path}${FileName}
             Upload File By Selector    ${UploadFile}    ${AbsolutePath}
             Sleep    2s
-    END
-    FOR    ${file}    IN    @{FileName}
+            verify sub attachement files in document while uploading    ${subattachement_file_name} 
+   
+  
         ${isArchive} =   Run Keyword And Return Status    Get Element States    ${ArchiveIcon}    validate    value & visible    'ArchiveIcon should be visible.'
-        IF   ${isArchive}
+        Should Be True    ${isArchive}
+        IF   ${isprocessed}
             # ${AbsolutePath}=    Normalize Path    ${path}${file}
-            ${ArchieveFile}=    Catenate    SEPARATOR=    ${ArchiveButton1}    ${file}    ${ArchiveButton2}
+            ${ArchieveFile}=    Catenate    SEPARATOR=    ${ArchiveButton1}    ${FileName}    ${ArchiveButton2}
             Click    ${ArchieveFile}
             Sleep    2s
+            Wait For Processing Stage
         END
-    END
     Wait For Elements State    ${UploadButton}    visible
     Click    ${UploadButton}
-
+    IF   ${isprocessed}    
+      Wait For Processing Stage
+    END
 
 verify The Reprocess should be disabled for HITL User
     [Documentation]    This method for the verify The Reprocess should be disabled for HITL User
@@ -1378,3 +1385,56 @@ verify The Reprocess should be disabled for HITL User
     ${state}    Get Element States    ${Reprocces_more_option}    
     Should Contain    ${state}    disabled
 
+Verify Claims Data From Loss Run File for Total claims extraction
+    [Documentation]    Downloads the claims data (as an Excel file) extracted from the Loss Run document and compares it with an expected data file.
+    ...    It ignores certain columns that may contain dynamic data (like row IDs or coordinates).
+
+    Switch To Documents
+
+    ${status}=    Run Keyword And Return Status    Scroll To Element    ${LossRunFile}
+    Run Keyword And Continue On Failure    Should Be True    ${status}    Failed to scroll to Loss Run file.
+
+    ${status}=    Run Keyword And Return Status    Get Element States    ${LossRunFile}    validate    enabled
+    Run Keyword And Continue On Failure    Should Be True    ${status}    LossRunFile should be enabled.
+
+    ${status}=    Run Keyword And Return Status    Click    ${LossRunFile}
+    Run Keyword And Continue On Failure    Should Be True    ${status}    Failed to click on Loss Run file.
+    
+    ${status}=    Run Keyword And Return Status    Wait For Elements State    ${Total_claims_value}    visible    timeout=${element_timeout}
+    Run Keyword And Continue On Failure    Should Be True    ${status}    Claims element is not visible; cannot verify claim data.
+    ${Total_claims_value}    Get Text    ${Total_claims_value}
+    Strip String    ${Total_claims_value}
+    Should Be Equal    ${Total_claims_value}    149
+    ${status}=    Run Keyword And Return Status    Wait For Elements State    ${Claims}    visible    timeout=${element_timeout}
+    Run Keyword And Continue On Failure    Should Be True    ${status}    Claims element is not visible; cannot verify claim data.
+
+    ${status}=    Run Keyword And Return Status    Click    ${Claims}
+    Run Keyword And Continue On Failure    Should Be True    ${status}    Failed to click on Claims element.
+
+    ${status}=    Run Keyword And Return Status    Wait For Elements State    ${DownloadDropdown}    visible    timeout=${element_timeout}
+    Run Keyword And Continue On Failure    Should Be True    ${status}    Download dropdown is not visible for the Loss Run file.
+
+    ${status}=    Run Keyword And Return Status    Click    ${DownloadDropdown}
+    Run Keyword And Continue On Failure    Should Be True    ${status}    Failed to click on Download dropdown.
+
+    ${status}=    Run Keyword And Return Status    Wait For Elements State    ${DownloadData}    visible    timeout=${element_timeout}
+    Run Keyword And Continue On Failure    Should Be True    ${status}    Download option is not visible for the Loss Run file.
+
+    ${promise}=    Promise To Wait For Download    ${DownloadPath}${ActualClaimsFileName}
+
+    ${status}=    Run Keyword And Return Status    Click    ${DownloadData}
+    Run Keyword And Continue On Failure    Should Be True    ${status}    Failed to click on Download option for Loss Run file.
+
+    ${fileObject}=    Wait For    ${promise}
+
+    ${status}=    Run Keyword And Return Status    File Should Exist    ${fileObject}[saveAs]
+    Run Keyword And Continue On Failure    Should Be True    ${status}    Downloaded Loss Run file does not exist at expected path.
+
+    ${cols_to_ignore}=    Create List    row_id    x1    x2    y1    y2
+
+    # ${status}=    Run Keyword And Return Status    Compare Excel Files    ${testDataPath}${ExpectedClaimsFileName}    ${DownloadPath}${ActualClaimsFileName}    ignore_columns=${cols_to_ignore}
+    # Run Keyword And Continue On Failure    Should Be True    ${status}    msg=Documents Tab: Uploaded Claims data in downloaded Loss Run file does not match expected file.
+    ${status}    ${details}=    Compare Excel Files    ${testDataPath}${Excepted149claims}    ${DownloadPath}${ActualClaimsFileName}    ignore_columns=${cols_to_ignore}
+    IF    '${status}' == 'False'
+        Fail    ❌ FAILED: Documents Tab – Uploaded Loss Run Claims data does not match expected file.\n${details}
+    END

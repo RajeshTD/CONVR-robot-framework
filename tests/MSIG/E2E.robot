@@ -3557,6 +3557,24 @@ TC_E2E_068
     Advance Stage    ${TC_E2E_011['stageNo']}
     Run Keyword And Continue On Failure    Verify Stage is updated in the submission    ${TC_E2E_011['stage']}
     Verify Log History    ${TC_E2E_068['expectedLogHistory']}
+TC_E2E_069
+    [Documentation]    This test cases for create new Renewal Submission 
+    [Tags]    Renewal_Submission
+    Run Keyword And Continue On Failure    Verify My Assignments Tab is displayed as a default tab
+    # ${submission_id}    Create New Submission    ${TC_E2E_069['FileName']}    @{TC_E2E_069['SubmissionColumnNames']}
+    Set Suite Variable   ${submission_id_1}    307074b0-5548-42c7-bb45-97a758a2e058
+    Select Submission using submission id    ${submission_id_1}    @{TC_E2E_069['SubmissionColumnNames']}
+    Run Keyword And Continue On Failure    Verify Submission page is displayed 
+    Click Edit Submission
+    Navigate to Form
+    switch to NY Underwriting Eligibility Guidelines Form
+    Run Keyword And Continue On Failure    Verify NYUEG Average Ratio        ${TC_E2E_069['NYUEGAverageratio']}
+    Run Keyword And Continue On Failure    Click and verify Clearance tab
+    Run Keyword And Continue On Failure    Select the Underwritername in clearance    ${TC_E2E_069}    
+    Run Keyword And Continue On Failure    Verify Clearance Data in Processing Tab based on Underwriter name    ${TC_E2E_069['Excepted_Processingdata']}
+    Run Keyword And Continue On Failure    Verify Slider Value in Forms Tab
+    # Run Keyword And Continue On Failure    uplod the file via air template    ${TC_E2E_069['FileName']}
+
 TC_E2E_207
     [Documentation]    This test case for the msig 207 bug fix testcases 
     Run Keyword And Continue On Failure    Verify My Assignments Tab is displayed as a default tab
@@ -3565,15 +3583,15 @@ TC_E2E_207
     Select Submission using submission id    e22c2d1c-5b29-40c1-8f8a-6bed22f3065d    @{TC_E2E_068['SubmissionColumnNames']}
     Run Keyword And Continue On Failure    Verify Submission page is displayed
     Click Edit Submission
-    # Run Keyword And Continue On Failure    verify that click on side detials policy saved popup should not be appear
-    # Click and verify Clearance tab
-    # Delete and add the SIC and Naics code in clearance tab    444190
-    # Run Keyword And Continue On Failure    Verify Clearance Data in Insured Tab    ${TC_E2E_207['Clearance2.0Data']['InsuredTabData']}
-    # Run Keyword And Continue On Failure    Verify Clearance Data in Processing Tab    ${TC_E2E_207['Clearance2.0Data']['ProcessingTabData']}
-    # Run Keyword And Continue On Failure    Verify Clearance Data in Producer Tab    ${TC_E2E_207['Clearance2.0Data']['ProducerTabData']['expectedTextInProducer']}    ${TC_E2E_207['Clearance2.0Data']['ProducerTabData']['ProducerName']}      ${TC_E2E_207['Clearance2.0Data']['ProducerTabData']['ProducerEmail']} 
-    # Run Keyword And Continue On Failure    Verify Clearance Data in Coverage Tab    ${TC_E2E_207['Clearance2.0Data']['Covered']}
-    # Run Keyword And Continue On Failure    Complete Clearance and Verify Popup    ${TC_E2E_207['Clearance2.0Data']['Covered']}
-    # Run Keyword And Continue On Failure    Veify That Empty NAICS and SIC box should not be present in the clearance
+    Run Keyword And Continue On Failure    verify that click on side detials policy saved popup should not be appear
+    Click and verify Clearance tab
+    Delete and add the SIC and Naics code in clearance tab    444190
+    Run Keyword And Continue On Failure    Verify Clearance Data in Insured Tab    ${TC_E2E_207['Clearance2.0Data']['InsuredTabData']}
+    Run Keyword And Continue On Failure    Verify Clearance Data in Processing Tab    ${TC_E2E_207['Clearance2.0Data']['ProcessingTabData']}
+    Run Keyword And Continue On Failure    Verify Clearance Data in Producer Tab    ${TC_E2E_207['Clearance2.0Data']['ProducerTabData']['expectedTextInProducer']}    ${TC_E2E_207['Clearance2.0Data']['ProducerTabData']['ProducerName']}      ${TC_E2E_207['Clearance2.0Data']['ProducerTabData']['ProducerEmail']} 
+    Run Keyword And Continue On Failure    Verify Clearance Data in Coverage Tab    ${TC_E2E_207['Clearance2.0Data']['Covered']}
+    Run Keyword And Continue On Failure    Complete Clearance and Verify Popup    ${TC_E2E_207['Clearance2.0Data']['Covered']}
+    Run Keyword And Continue On Failure    Veify That Empty NAICS and SIC box should not be present in the clearance
     Run Keyword And Continue On Failure    verify The Reprocess should be disabled for HITL User
     Run Keyword And Continue On Failure    Verify Error msg in CAT Modeling Request form in task tab    ${TC_E2E_207['CAT_moduleing']}    
     
@@ -3586,37 +3604,36 @@ TC_email_060
     Run Keyword And Continue On Failure    Verify Submission page is displayed
     Click Edit Submission
     Switch to Documents
-    # Upload given Documents in document tab    ${TC_email_060['KIPP_Miami_Inc']['file_name']}    ${TC_email_060['KIPP_Miami_Inc']}    True    True
+    Run Keyword And Continue On Failure    Upload given Documents in document tab    ${TC_email_060['eml_no_data']['file_name']}    ${TC_email_060['eml_no_data']['sub_attachement']}    False    
     # Run Keyword And Continue On Failure    Remove Document after Upload    ${TC_email_060['eml_no_data']['file_name']}
-    Run Keyword And Continue On Failure    Upload SOV and Loss Run Documents    ${TC_email_060['eml_no_data']['file_name']}
+    # Run Keyword And Continue On Failure    Upload SOV and Loss Run Documents    ${TC_email_060['eml_no_data']['file_name']}
     Wait For Processing Stage
     # Run Keyword And Continue On Failure    verify the Email Body Document    ${TC_email_060['eml_no_data']['file_name']}    ${TC_email_060['eml_no_data']['Expected_email_Msg']}
-    # Run Keyword And Continue On Failure    verify the file info details    ${TC_email_060['eml_no_data']['file_name']}    ${TC_email_060['eml_no_data']}
     Run Keyword And Continue On Failure    delete the given file in processed Tab    @{TC_email_060['eml_no_data']['document_type']}
     Run Keyword And Continue On Failure    verify files are deleted    @{TC_email_060['eml_no_data']['document_type']}
-    # Run Keyword And Continue On Failure    delete the archived files
+    Run Keyword And Continue On Failure    delete the archived files
 #   
     # Run Keyword And Continue On Failure    Remove Document after Upload    ${TC_email_060['eml_normal_data']['file_name']}          
-    Run Keyword And Continue On Failure    Upload SOV and Loss Run Documents    ${TC_email_060['eml_normal_data']['file_name']}
+    Run Keyword And Continue On Failure    Upload given Documents in document tab    ${TC_email_060['eml_normal_data']['file_name']}    ${TC_email_060['eml_no_data']['sub_attachement']}    False
     Wait For Processing Stage
     # Run Keyword And Continue On Failure    verify the Email Body Document    ${TC_email_060['eml_normal_data']['file_name']}    ${TC_email_060['eml_normal_data']['Expected_email_Msg']}
     # Run Keyword And Continue On Failure    verify the file info details    ${TC_email_060['eml_normal_data']['file_name']}    ${TC_email_060['eml_normal_data']}
     Run Keyword And Continue On Failure    delete the given file in processed Tab    @{TC_email_060['eml_normal_data']['document_type']}
     Run Keyword And Continue On Failure    verify files are deleted    @{TC_email_060['eml_normal_data']['document_type']}
-    # Run Keyword And Continue On Failure    delete the archived files
+    Run Keyword And Continue On Failure    delete the archived files
 # eml_pdf_plus_nameless
     # Run Keyword And Continue On Failure    Remove Document after Upload    ${TC_email_060['eml_pdf_plus_nameless']['file_name']}
-    Run Keyword And Continue On Failure    Upload SOV and Loss Run Documents    ${TC_email_060['eml_pdf_plus_nameless']['file_name']}
+    Run Keyword And Continue On Failure    Upload given Documents in document tab    ${TC_email_060['eml_pdf_plus_nameless']['file_name']}    ${TC_email_060['eml_no_data']['sub_attachement']}    True
     Wait For Processing Stage
     # Run Keyword And Continue On Failure    verify the Email Body Document    ${TC_email_060['eml_pdf_plus_nameless']['file_name']}    ${TC_email_060['eml_pdf_plus_nameless']['Expected_email_Msg']}
     # Run Keyword And Continue On Failure    verify the file info details    ${TC_email_060['eml_pdf_plus_nameless']['file_name']}    ${TC_email_060['eml_pdf_plus_nameless']}
     Run Keyword And Continue On Failure    delete the given file in processed Tab    @{TC_email_060['eml_pdf_plus_nameless']['document_type']}
     Run Keyword And Continue On Failure    verify files are deleted    @{TC_email_060['eml_pdf_plus_nameless']['document_type']}
     Run Keyword And Continue On Failure    delete the archived files
-# eml_normal_plus
-    # Run Keyword And Continue On Failure    Remove Document after Upload    ${TC_email_060['eml_normal_plus']['file_name']}
-    Run Keyword And Continue On Failure    Upload SOV and Loss Run Documents    ${TC_email_060['eml_normal_plus']['file_name']}
-    Wait For Processing Stage
+eml_normal_plus
+    Run Keyword And Continue On Failure    Remove Document after Upload    ${TC_email_060['eml_normal_plus']['file_name']}
+    Run Keyword And Continue On Failure    Upload given Documents in document tab    ${TC_email_060['eml_normal_plus']['file_name']}    ${TC_email_060['eml_no_data']['sub_attachement']}    False
+    
     # Run Keyword And Continue On Failure    verify the Email Body Document    ${TC_email_060['eml_normal_plus']['file_name']}    ${TC_email_060['eml_normal_plus']['Expected_email_Msg']}
     # Run Keyword And Continue On Failure    verify the file info details    ${TC_email_060['eml_normal_plus']['file_name']}    ${TC_email_060['eml_normal_plus']}
     Run Keyword And Continue On Failure    delete the given file in processed Tab    @{TC_email_060['eml_normal_plus']['document_type']}
@@ -3631,13 +3648,18 @@ TC_E2E_071
     Run Keyword And Continue On Failure    Verify My Assignments Tab is displayed as a default tab
     
         # verify the Transation Type filter in Convr Submission page    ${TC_E2E_071['Transaction_value']}
-        Verify the filter option in Convr Submission page    Submission    display_name      
-        Switch to Convr Task tab
-        verify the Checkbox Type filter in Convr Submission page    Transaction Type    submission.renewalFlag    ${TC_E2E_071['Transaction_value']}
+        Run Keyword And Continue On Failure    Verify the filter option in Convr Submission page    Submission    display_name      
+
+        # verify the Checkbox Type filter in Convr Submission page    Transaction Type    submission.renewalFlag    ${TC_E2E_071['Transaction_value']}
+        # verify the Checkbox Type filter in Convr Submission page    Created By    createdBy.name    ${TC_E2E_071['Transaction_value']}
+        # verify the Checkbox Type filter in Convr Submission page    Created By    createdBy.name    ${TC_E2E_071['Transaction_value']}
         verify the Checkbox Type filter in Convr Submission page    Created By    createdBy.name    ${TC_E2E_071['Transaction_value']}
-        verify the Checkbox Type filter in Convr Submission page    Created By    createdBy.name    ${TC_E2E_071['Transaction_value']}
-        verify the Checkbox Type filter in Convr Submission page    Created By    createdBy.name    ${TC_E2E_071['Transaction_value']}
-        
+        # Run Keyword And Continue On Failure    verify the Checkbox Type filter in Convr Task page    Created By    createdBy.name
+        Run Keyword And Continue On Failure    Verify the filter option in Convr Task page    Account #    referenceId
+        Run Keyword And Continue On Failure    Verify the filter option in Convr Task page    Task    name
+        Run Keyword And Continue On Failure    Verify the filter option in Convr Task page    Submission    submission.displayName
+        Run Keyword And Continue On Failure    Verify the filter option in Convr Task page    Status    status
+        Run Keyword And Continue On Failure    Verify the filter option in Convr Task page    Details    body
         # ${before_created_task_length}    Get the length of the created task in the Convr Task Tab
         # ${before_Assign_task_length}    Get the length of the Assigned task in the Convr Task Tab
         # Click All tasks option

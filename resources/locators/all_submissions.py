@@ -398,3 +398,5 @@ Add_naic_code_button="xpath=//span[text()='Add NAICS Code']"
 Add_sic_code_button="xpath=//span[text()='Add SIC Code']"
 Add_sic_value="xpath-=//section[@id='sic-codes']//input[@value='']"
 Add_naics_value="xpath=//section[@id='naics-codes']//input[@value='']"
+
+Total_claims_value="xpath=//dt[text()='Total Claims']//following-sibling::dd"
