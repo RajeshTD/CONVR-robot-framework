@@ -1529,3 +1529,73 @@ Reactive the Submission via Summary Tab
         Run Keyword And Continue On Failure    Should Be True    ${click_answers}    msg=Failed to click Answers tab after reactivation.
     END
 
+Verify user can add the comment in the Summary page 
+    [Documentation]    This method is used to verify that user can add the comment in the Summary page
+    [Arguments]    ${Comment_user}    ${value}
+    Click Answers Tab
+    Switch to Summary
+    Click    ${Summary_addcomment}
+    Click    ${Summary_commentbox}
+    Fill Text    ${Summary_commentbox}    ${Comment_user}
+    # Type Text    ${Summary_commentbox}    ${SPACE}
+    # Press Keys    ${Summary_commentbox}    Backspace
+    Click    ${Select_MSIG}
+    Fill Text    ${Summary_commentbox}    ${value}
+    Click    ${post_comment_button}
+
+Verify user can recive the comment notification in the Summary page
+    [Documentation]    This method is used to verify that user can recive the comment notification in the Summary page        
+    ${status}    Run Keyword And Return Status    Wait For Elements State    ${Comment_notification}    visible    timeout=${element_timeout}
+    Run Keyword And Continue On Failure    Should Be True    ${status}    msg=Comment notification is not visible in Summary page
+
+Verify that user can cancel the comment 
+    [Documentation]    This method is used to verify that user can cancel the comment
+    [Arguments]    ${Comment_user}    ${value}
+    
+     Click Answers Tab
+     Switch to Summary
+    Click    ${Summary_addcomment}
+    Click    ${Summary_commentbox}
+    Fill Text    ${Summary_commentbox}    ${Comment_user}
+    # Type Text    ${Summary_commentbox}    ${SPACE}
+    # Press Keys    ${Summary_commentbox}    Backspace
+    Click    ${Select_MSIG}
+    Fill Text    ${Summary_commentbox}    ${value}
+    Click    ${Commant_Cancel}
+    ${status}    Run Keyword And Return Status    Wait For Elements State    ${Summary_addcomment}    visible    ${display_timeout}
+    Should Be True    ${status}    After cancel the comment add to comment button is not vissible 
+    ${status}    Run Keyword And Return Status    Wait For Elements State    ${Summary_commentbox}    detached    ${display_timeout}
+    Should Be True    ${status}    After cancel the comment the comment value is not disappear  
+    
+verify that added comment should be displayed
+    [Documentation]    This method verify that added comment reflected in next stage 
+    [Arguments]    ${excepted_comment} 
+
+    # ${status}    Run Keyword And Return Status    Wait For Elements State    ${Comment_value}    visible    ${element_timeout}
+    # Run Keyword And Continue On Failure    Should Be True    ${status}    added comment is not displayed in summary page 
+
+    # Get all comment elements
+    ${list_comments}    Get Elements    ${Comment_value}
+
+    # Get last element from list
+    ${last_comment}    Get From List    ${list_comments}    -1
+
+    # Extract text from last comment
+    ${Actual_value}    Get Text    ${last_comment}
+    Strip String    ${Actual_value}
+
+    # Validations
+    Run Keyword And Continue On Failure    Should Be Equal    ${Actual_value}    ${excepted_comment}    added comment is not displayed in summary page    
+    # Run Keyword And Continue On Failure    Should Contain    ${Actual_value}    ${excepted_User}    added comment is not displayed in summary page
+
+verify user can react or edit replay or delete the comment
+    [Documentation]    Verify that user can react or edit replay or delete the comment  
+
+    ${Comment_options}    Get Elements    ${Comment_options}
+    ${lenth}    Get Length    ${Comment_options}
+    FOR    ${counter}    IN RANGE    0    END    ${lenth}
+        Click    ${Comment_options}'${counter}'
+        
+    END
+    
+

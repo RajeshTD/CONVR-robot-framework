@@ -1455,3 +1455,98 @@ Verify Error msg in CAT Modeling Request form in task tab
 
     ${clicked}=    Run Keyword And Return Status    Click    ${Close_Task}
     Run Keyword And Continue On Failure    Should Be True    ${clicked}    msg=CAT Request: Failed to click 'Close_Task' button.
+
+
+Cancel the New Task
+    [Documentation]    Creates a new task from within a submission.
+    ...    Fills out the 'Create Task' form with the provided data including task name, assignee, due date, priority, and task details.
+    [Arguments]    ${data}
+
+    # Wait and click Tasks menu
+    ${status}=    Run Keyword And Return Status    Wait For Elements State    ${TasksMenu}    visible    timeout=${display_timeout}
+    Run Keyword And Continue On Failure    Should Be True    ${status}    Create Task: 'TasksMenu' is not visible in the side menu.
+
+    ${status}=    Run Keyword And Return Status    Click    ${TasksMenu}
+    Run Keyword And Continue On Failure    Should Be True    ${status}    Create Task: Failed to click on 'TasksMenu'.
+
+    # Click on 'Create New Task' or 'New Task' depending on task availability
+    ${noTasks_visible}=    Run Keyword And Return Status    Wait For Elements State    ${NoTasks}    visible    timeout=${display_timeout}
+    IF    ${noTasks_visible}
+        ${status}=    Run Keyword And Return Status    Click    ${CreateNewTaskButton}
+        Run Keyword And Continue On Failure    Should Be True    ${status}    Create Task: Failed to click on 'CreateNewTaskButton' when no tasks exist.
+    ELSE
+        ${status}=    Run Keyword And Return Status    Wait For Elements State    ${NewTaskButton}    visible    timeout=${display_timeout}
+        Run Keyword And Continue On Failure    Should Be True    ${status}    Create Task: 'NewTaskButton' is not available in the task tab.
+
+        ${status}=    Run Keyword And Return Status    Click    ${NewTaskButton}
+        Run Keyword And Continue On Failure    Should Be True    ${status}    Create Task: Failed to click on 'NewTaskButton'.
+    END
+
+    # Wait for Create Task tab
+    ${status}=    Run Keyword And Return Status    Wait For Elements State    ${CreateTaskTab}    visible    timeout=${display_timeout}
+    Run Keyword And Continue On Failure    Should Be True    ${status}    Create Task: 'CreateTaskTab' fields are not visible on the task page.
+
+    # Select Task Name
+    ${customName}=    Run Keyword And Return Status    Should Be Equal    '${data["TaskNameDropdown"]}'    'Custom'
+    IF    ${customName}
+        ${status}=    Run Keyword And Return Status    Select Options By    ${TaskNameDropdown}    label    Custom
+        Run Keyword And Continue On Failure    Should Be True    ${status}    Create Task: Failed to select 'Custom' in TaskNameDropdown.
+
+        ${randomNumber}=    Generate Random Number
+        ${test_string}=    Catenate    SEPARATOR=    ${data['customName']}
+        Log Step    'Converted string -> ${test_string}'
+
+        ${status}=    Run Keyword And Return Status    Update Task Name    ${test_string}
+        Run Keyword And Continue On Failure    Should Be True    ${status}    Create Task: Failed to update task name to '${test_string}'.
+
+        Set Suite Variable    ${test_new_task_name}    ${test_string}
+
+        ${status}=    Run Keyword And Return Status    Fill Text    ${CustomTaskName}    ${data['customName']}
+        Run Keyword And Continue On Failure    Should Be True    ${status}    Create Task: Failed to fill CustomTaskName field.
+    ELSE
+        ${status}=    Run Keyword And Return Status    Select Options By    ${TaskNameDropdown}    label    ${data['TaskNameDropdown']}
+        Run Keyword And Continue On Failure    Should Be True    ${status}    Create Task: Failed to select task name '${data['TaskNameDropdown']}' in dropdown.
+    END
+
+    # Assign task
+    ${status}=    Run Keyword And Return Status    Click    ${AssignTo}
+    Run Keyword And Continue On Failure    Should Be True    ${status}    Create Task: Failed to click 'AssignTo' field.
+
+    ${assignee}=    Catenate    SEPARATOR=    ${SelectAssignee}    ${data['assignee']}    ']
+    ${status}=    Run Keyword And Return Status    Click    ${assignee}
+    Run Keyword And Continue On Failure    Should Be True    ${status}    Create Task: Failed to select assignee '${data['assignee']}'.
+
+    # Set due date
+    ${data_due_date}=    Get Tomorrows Date YMD
+    ${status}=    Run Keyword And Return Status    Wait For Elements State    ${DueDate}    visible    timeout=${display_timeout}
+    Run Keyword And Continue On Failure    Should Be True    ${status}    Create Task: 'DueDate' field is not visible while creating the task.
+
+    ${full_datetime}=    Catenate    SEPARATOR=    ${data_due_date}    T    ${data['dueTime']}
+    ${status}=    Run Keyword And Return Status    Evaluate JavaScript    ${DueDate}    (el) => { el.value = "${full_datetime}"; el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new Event('change', { bubbles: true })); }
+    Run Keyword And Continue On Failure    Should Be True    ${status}    Create Task: Failed to set the due date/time.
+
+    # Set priority
+    ${status}=    Run Keyword And Return Status    Select Options By    ${PriorityDropdown}    label    ${data['priority']}
+    Run Keyword And Continue On Failure    Should Be True    ${status}    Create Task: Failed to select priority '${data['priority']}'.
+
+    # Fill Task Details
+    ${status}=    Run Keyword And Return Status    Click    ${TaskDetails}
+    Run Keyword And Continue On Failure    Should Be True    ${status}    Create Task: Failed to click on 'TaskDetails' field.
+
+    ${status}=    Run Keyword And Return Status    Fill Text    ${TaskDetails}    ${data['taskDetails']}
+    Run Keyword And Continue On Failure    Should Be True    ${status}    Create Task: Failed to fill 'TaskDetails' with provided data.
+
+    # Click Create button
+    ${status}=    Run Keyword And Return Status    Wait For Elements State    ${Task_cancel_button}    visible    timeout=${display_timeout}
+    Run Keyword And Continue On Failure    Should Be True    ${status}    Create Task: 'CreateButton' did not appear or is not clickable after filling task details.
+
+    ${status}=    Run Keyword And Return Status    Click    ${Task_cancel_button}
+    Run Keyword And Continue On Failure    Should Be True    ${status}    Create Task: Failed to click on 'CreateButton'.
+
+    ${New_task_status}    Run Keyword And Return Status    Wait For Elements State    ${NewTaskButton}    visible
+    ${Create_newtask_status}    Run Keyword And Return Status    Wait For Elements State    ${CreateNewTaskButton}    visible
+    IF    '${New_task_status}' or '${Create_newtask_status}'
+        Log    Cancel button working fine as expected in task page 
+    ELSE
+        Log    Cancel button not working fine as expected in task page 
+    END

@@ -455,3 +455,13 @@ Verify the Score In Answers Tab
     ${ExpectedScoreValue}=    Get Text    ${Ans_ScoreValue}
     Log    The Score value shown in Answers tab is ${ExpectedScoreValue}
     Run Keyword And Continue On Failure    Should Be Equal    ${ExpectedScoreValue}    ${Actual_Score}    msg=Score mismatch: Expected ${Actual_Score}, but found ${ExpectedScoreValue}. 
+
+Verify the DBA change to Related Entities in answer page
+    [Documentation]    This method Verify the DBA change to Related Entities in answer page
+
+    Click Answers Tab
+    ${status}    Run Keyword And Return Status    Wait For Elements State    ${Ans_Related_Entities}    visible    ${display_timeout}
+    Should Be True    ${status}    Related Entities is not present in the answe page 
+    ${text}    Get Text    ${Ans_Related_Entities}
+    Strip String    ${text}
+    Should Be Equal    ${text}    Related Entities    Related Entities text is mismatch in the answer page Actual : ${text} excepted : Related Entities 

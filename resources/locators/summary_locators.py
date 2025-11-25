@@ -69,3 +69,16 @@ Summary_reactive="xpath=//div[text()='Reactivate']"
 Summary_accept="xpath=//button[text()='Accept']"
 summary_cancel="xpath=//button[text()='Cancel']"
 Summary_reactive_error_msg="xpath=//p[text()='Please provide a reason for reactivation']"
+
+
+Summary_addcomment="xpath=//button[text()='Add a comment']"
+Summary_commenttips="xpath=//div[text()='Comments']//following-sibling::div[@data-slot='card-description']"
+post_comment_button="xpath=//button[text()='Post Comment']"
+Summary_commentbox="xpath=//h4[text()='New Comment']//ancestor::div[1]//div//p"
+Select_MSIG="xpath=(//div[text()='MSIG TEST']//following-sibling::div[text()='prabhakaran.sundaram-gdt+msig@convr.com'])[1]"
+Comment_notification="xpath=//em[normalize-space()='@MSIG TEST']"
+Extra_key="xpath=//*[contains(@class, 'ace_variable') and text() = 'heep']"
+Comment_value="xpath=//section[@id='submission-comments']//div//p"
+Commant_Cancel="xpath=//button[text()='Cancel']"
+Comment_options="xpath=//div[contains(@class,'group-hover:opacity-100')]//button"
+

@@ -370,11 +370,34 @@ Verify that Detials should be Hidden
     Log    ${state}
     ${status}    Run Keyword And Return Status    Should Not Be True    ${state}
     Should Be True    ${status}    By default Details column should be Hidden but its not hidden is visible on Convr Task Page
-    # IF    '${state}' == 'True'
-    # ${checked_column}=    Run Keyword And Return Status    Check Checkbox    ${column_locator}
-    # Run Keyword And Continue On Failure    Should Be True    ${checked_column}    msg=Rearrange Submission Page Columns: Failed to select column '${ColumnNames}' checkbox.
-    # END
+    IF    '${state}' == 'False'
+    ${checked_column}=    Run Keyword And Return Status    Check Checkbox    ${column_locator}
+    Run Keyword And Continue On Failure    Should Be True    ${checked_column}    msg=Rearrange Submission Page Columns: Failed to select column '${ColumnNames}' checkbox.
+    END
     ${clicked_button_again}=    Run Keyword And Return Status    Click    ${Submissions_Page_Columns_Button}
     Run Keyword And Continue On Failure    Should Be True    ${clicked_button_again}    msg=Rearrange Submission Page Columns: Failed to close 'Submissions Page Columns' menu.
-    ${status}    Run Keyword And Return    Wait For Elements State    ${Convr_detials_field}    hidden    timeout=5s
-    Should Be True    ${status}    Details column is not hidden on Convr Task Page
+    ${status}    Run Keyword And Return    Wait For Elements State    ${Convr_detials_field}    visible    timeout=5s
+    Should Be True    ${status}    Details column is not visible on Convr Task Page
+    Navigate To All Submissions page from submissions
+    Switch to Convr Task tab
+    ${button_visible}=    Run Keyword And Return Status    Wait For Elements State    ${Submissions_Page_Columns_Button}    visible    timeout=${element_timeout}
+    Run Keyword And Continue On Failure    Should Be True    ${button_visible}    msg=Rearrange Submission Page Columns: 'Submissions Page Columns' button is not visible on the submissions page.
+
+    ${clicked_button}=    Run Keyword And Return Status    Click    ${Submissions_Page_Columns_Button}
+    Run Keyword And Continue On Failure    Should Be True    ${clicked_button}    msg=Rearrange Submission Page Columns: Failed to click 'Submissions Page Columns' button.
+    Sleep   2s
+    ${select_all_visible}=    Run Keyword And Return Status    Wait For Elements State    ${Submission_Columns_Select_All_Checkbox}    visible    timeout=${element_timeout}
+    Run Keyword And Continue On Failure    Should Be True    ${select_all_visible}    msg=Rearrange Submission Page Columns: 'Select All' checkbox for columns is not visible.
+
+    ${column_locator}=    Catenate    SEPARATOR=        ${Submission_Columns_Status_CheckBox}    ${ColumnNames}    ${Submission_Columns_Status_CheckBox_1}
+
+    ${scroll}=    Run Keyword And Return Status    Scroll To Element    ${column_locator}
+    Run Keyword And Continue On Failure    Should Be True    ${scroll}    msg=Rearrange Submission Page Columns: Failed to scroll to column '${ColumnNames}' checkbox.
+
+    ${column_visible}=    Run Keyword And Return Status    Wait For Elements State    ${column_locator}    visible    timeout=${element_timeout}
+    Run Keyword And Continue On Failure    Should Be True    ${column_visible}    msg=Rearrange Submission Page Columns: Column '${ColumnNames}' checkbox not visible.
+    ${state}    Get Checkbox State    ${column_locator}
+    Log    ${state}
+    ${status}    Run Keyword And Return Status    Should Not Be True    ${state}
+    Should Be True    ${status}    By default Details column should be Hidden but its not hidden is visible on Convr Task Page
+    

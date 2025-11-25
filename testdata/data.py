@@ -8097,7 +8097,8 @@ TC_E2E_071={
     "Convr_task_headers":['submission.renewalFlag','submission.displayName','name','createdBy.name','assignedTo.name','createdTs','dueTs','submission.displayName','referenceId'],
     "Transaction_value":['(Select All)', 'New Business', 'Renewal'],
     "Details":"Details",
-    "Comment_value":"@MSIG",
+    "Comment_user":"@MSIG",
+    "Comment_value":"Stage 1",
     "taskdata":{
         "TaskNameDropdown":"Custom",
         "customName": "Test Automation",

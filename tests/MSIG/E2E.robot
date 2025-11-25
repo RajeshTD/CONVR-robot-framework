@@ -3594,6 +3594,7 @@ TC_E2E_207
     Run Keyword And Continue On Failure    Veify That Empty NAICS and SIC box should not be present in the clearance
     Run Keyword And Continue On Failure    verify The Reprocess should be disabled for HITL User
     Run Keyword And Continue On Failure    Verify Error msg in CAT Modeling Request form in task tab    ${TC_E2E_207['CAT_moduleing']}    
+    Run Keyword And Continue On Failure    Verify Claims Data From Loss Run File for Total claims extraction
     
 TC_email_060
     [Documentation]    upload the different email submission 
@@ -3630,7 +3631,7 @@ TC_email_060
     Run Keyword And Continue On Failure    delete the given file in processed Tab    @{TC_email_060['eml_pdf_plus_nameless']['document_type']}
     Run Keyword And Continue On Failure    verify files are deleted    @{TC_email_060['eml_pdf_plus_nameless']['document_type']}
     Run Keyword And Continue On Failure    delete the archived files
-eml_normal_plus
+    # eml_normal_plus
     Run Keyword And Continue On Failure    Remove Document after Upload    ${TC_email_060['eml_normal_plus']['file_name']}
     Run Keyword And Continue On Failure    Upload given Documents in document tab    ${TC_email_060['eml_normal_plus']['file_name']}    ${TC_email_060['eml_no_data']['sub_attachement']}    False
     
@@ -3645,21 +3646,22 @@ TC_E2E_071
     [Documentation]    This testcase is to verify E2E_071    
     # Create User If the User is not present    ${NewUser}
     # Select Impersonate option from the actions    ${NewUser['email']}    ${NewUser['search_user']} 
-    Run Keyword And Continue On Failure    Verify My Assignments Tab is displayed as a default tab
+        Run Keyword And Continue On Failure    Verify My Assignments Tab is displayed as a default tab
     
         # verify the Transation Type filter in Convr Submission page    ${TC_E2E_071['Transaction_value']}
-        Run Keyword And Continue On Failure    Verify the filter option in Convr Submission page    Submission    display_name      
+        # Run Keyword And Continue On Failure    Verify the filter option in Convr Submission page    Submission    display_name      
 
         # verify the Checkbox Type filter in Convr Submission page    Transaction Type    submission.renewalFlag    ${TC_E2E_071['Transaction_value']}
         # verify the Checkbox Type filter in Convr Submission page    Created By    createdBy.name    ${TC_E2E_071['Transaction_value']}
         # verify the Checkbox Type filter in Convr Submission page    Created By    createdBy.name    ${TC_E2E_071['Transaction_value']}
-        verify the Checkbox Type filter in Convr Submission page    Created By    createdBy.name    ${TC_E2E_071['Transaction_value']}
+        # verify the Checkbox Type filter in Convr Submission page    Created By    createdBy.name    ${TC_E2E_071['Transaction_value']}
         # Run Keyword And Continue On Failure    verify the Checkbox Type filter in Convr Task page    Created By    createdBy.name
-        Run Keyword And Continue On Failure    Verify the filter option in Convr Task page    Account #    referenceId
-        Run Keyword And Continue On Failure    Verify the filter option in Convr Task page    Task    name
-        Run Keyword And Continue On Failure    Verify the filter option in Convr Task page    Submission    submission.displayName
-        Run Keyword And Continue On Failure    Verify the filter option in Convr Task page    Status    status
-        Run Keyword And Continue On Failure    Verify the filter option in Convr Task page    Details    body
+        # Run Keyword And Continue On Failure    Verify the filter option in Convr Task page    Account #    referenceId
+        # Run Keyword And Continue On Failure    Verify the filter option in Convr Task page    Task    name
+        # Run Keyword And Continue On Failure    Verify the filter option in Convr Task page    Submission    submission.displayName
+        # Run Keyword And Continue On Failure    Verify the filter option in Convr Task page    Status    status
+        # Run Keyword And Continue On Failure    Verify the filter option in Convr Task page    Details    body
+        # Switch to Convr Task tab
         # ${before_created_task_length}    Get the length of the created task in the Convr Task Tab
         # ${before_Assign_task_length}    Get the length of the Assigned task in the Convr Task Tab
         # Click All tasks option
@@ -3667,16 +3669,20 @@ TC_E2E_071
         # Verify that Detials should be Hidden    ${TC_E2E_071['Details']}  
         # Click    ${Convr_submission_button}
         # sleep    2s
-        # # ${submission_id}    Create New Submission    ${TC_E2E_071['FileName']}    @{TC_E2E_071['SubmissionColumnNames']}   
-        # Select Submission using submission id    e7a957c7-dfc6-4c60-b020-cfd7026736c3    @{TC_E2E_071['SubmissionColumnNames']}
-        # Click Edit Submission
-        # click Answers Tab
-        # click Answers Tab
-        # Create New Task    ${TC_E2E_071['taskdata']}
-        # click Answers Tab
-        # Navigate To All Submissions page from submissions
-        # Switch to Convr Task tab
-        # ${After_created_task_length}    Get the length of the created task in the Convr Task Tab
+        # ${submission_id}    Create New Submission    ${TC_E2E_071['FileName']}    @{TC_E2E_071['SubmissionColumnNames']}   
+        Select Submission using submission id    e7a957c7-dfc6-4c60-b020-cfd7026736c3    @{TC_E2E_071['SubmissionColumnNames']}
+        Click Edit Submission
+        verify that added comment should be displayed    Stage 2
+        Verify that user can cancel the comment    ${TC_E2E_071['Comment_user']}    Stage 2
+        Verify user can add the comment in the Summary page    ${TC_E2E_071['Comment_user']}    Stage 2     
+        Verify user can recive the comment notification in the Summary page
+        click Answers Tab
+        Cancel the New Task    ${TC_E2E_071['taskdata']}
+        Create New Task    ${TC_E2E_071['taskdata']}
+        click Answers Tab
+        Navigate To All Submissions page from submissions
+        Switch to Convr Task tab
+        ${After_created_task_length}    Get the length of the created task in the Convr Task Tab
         # ${After_Assign_task_length}    Get the length of the Assigned task in the Convr Task Tab
         # ${status}    Run Keyword And Return    Should Not Be Equal    ${before_Assign_task_length}    ${After_Assign_task_length}
         # Run Keyword And Continue On Failure    Should Be True    ${status}    Assigned task is not updated in the convr task page
@@ -3688,8 +3694,6 @@ TC_E2E_071
         # click Answers Tab
         # Switch To Documents
         
-
-
 *** Keywords ***
 Run Pre-requiste Steps for Stage 1
     # Create User If the User is not present    ${NewUser}

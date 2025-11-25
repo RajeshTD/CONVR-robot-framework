@@ -12,3 +12,5 @@ Answer_Popup = "xpath=//div[text()='Answer Rationale']"
 Website_Link = "xpath=//a[normalize-space()='Website']"
 
 Ans_ScoreValue = "xpath=//span[@test-id='app-view-score-number']"
+
+Ans_Related_Entities="xpath=//h4[@test-id='app-sidebar-dba-inspect']"

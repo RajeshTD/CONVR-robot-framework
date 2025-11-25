@@ -652,15 +652,24 @@ Create New Submission
 Select Submission using submission id
     [Documentation]    Selects a specific submission from the 'All Submissions' list by its ID.
     ...    Configures the view, searches for the submission, and clicks on the company name to open it.
-    [Arguments]    ${data_submissionID}    @{submission_column_names}
+    [Arguments]    ${data_submissionID}    @{submission_column_names}    ${Transaction_type}=''
 
     Click All submissions option
     Sleep    2s
-    Rearrange Submission Page Columns    @{submission_column_names}
-
     Search Submission By Submission ID    ${data_submissionID}
-
+    Sleep    2s
+    ${status}    Run Keyword And Return Status    Wait For Elements State    ${transaction_type_value}    visible    ${display_timeout}
+    Run Keyword And Continue On Failure    Should Be True    ${status}    Transaction type is not present in the submission page 
+    ${actual_transaction_type}    Get Text    ${transaction_type_value}
+    Strip String    ${actual_transaction_type}
+    IF    ${Transaction_type} == ''
+        Run Keyword And Continue On Failure    Should Be Equal    ${actual_transaction_type}    New Business    Expected transaction type is 'New Business' but actual value is '${actual_transaction_type}'
+    ELSE
+        Run Keyword And Continue On Failure    Should Be Equal    ${actual_transaction_type}    ${Transaction_type}    Expected transaction type is '${Transaction_type}' but actual value is '${actual_transaction_type}'
+    END
+    Rearrange Submission Page Columns    @{submission_column_names}
     Set Viewport Size    2560    1440
+
     ${locator_company_name}=    Catenate    SEPARATOR=    (${CompanyName}    ${data_submissionID}    ${BalanceCompanyName})[1]
     ${company_visible}=    Run Keyword And Return Status    Wait For Elements State    ${locator_company_name}    visible    timeout=${display_timeout}
     Run Keyword And Continue On Failure    Should Be True    ${company_visible}    msg=Select Submission: Company name for submission ID '${data_submissionID}' not visible.
@@ -5834,13 +5843,16 @@ Delete and add the SIC and Naics code in clearance tab
     # FOR    ${element}    IN    @{SIC_input}   
     #     Fill Text    ${element}    ${SIC_value} 
     # END
-    ${delete_naics}    Catenate    SEPARATOR=    ${delete_sic_code_prefix}    ${NAICS_value}    ${delete_sic_code_sufix}    
-    Click    ${delete_naics}
-    Wait For Elements State    ${Add_naic_code_button}    visible    ${display_timeout}
-    Click    ${Add_naic_code_button}
-    # Wait For Elements State    ${delete_sic}    visible    ${display_timeout}
     
+    ${delete_naics}    Catenate    SEPARATOR=    ${delete_sic_code_prefix}    ${NAICS_value}    ${delete_sic_code_sufix}    
+    ${status}=    Run Keyword And Return Status    Click    ${delete_naics}
+    Run Keyword And Continue On Failure    Should Be True    ${status}    msg=Failed to click delete NAICS button
 
+    ${status}=    Run Keyword And Return Status    Wait For Elements State    ${Add_naic_code_button}    visible    ${display_timeout}
+    Run Keyword And Continue On Failure    Should Be True    ${status}    msg=Add NAICS Code button not visible
+
+    ${status}=    Run Keyword And Return Status    Click    ${Add_naic_code_button}
+    Run Keyword And Continue On Failure    Should Be True    ${status}    msg=Failed to click Add NAICS Code button
     ${NAICS_input}    Get Elements    ${Add_naics_value}
 
     FOR    ${element}    IN    @{NAICS_input}
@@ -5853,6 +5865,44 @@ Delete and add the SIC and Naics code in clearance tab
     Fill Text    ${element}    ${NAICS_value}
     Exit For Loop
     END
+# Delete and add the SIC and Naics code in clearance tab
+#     [Documentation]    This method verifies the Delete and Add functionality of SIC and NAICS codes in the Clearance tab
+#     [Arguments]    ${NAICS_value}
+
+#     # --- Delete and Add SIC Code ---
+#     # Uncomment below if SIC code handling is required in future
+#     # ${delete_sic}=    Catenate    SEPARATOR=    ${delete_sic_code_prefix}    ${SIC_value}    ${delete_sic_code_sufix}
+#     # ${status}=    Run Keyword And Return Status    Click    ${delete_sic}
+#     # Run Keyword And Continue On Failure    Should Be True    ${status}    msg=Failed to click delete SIC button
+#     # ${status}=    Run Keyword And Return Status    Wait For Elements State    ${Add_sic_code_button}    visible    ${display_timeout}
+#     # Run Keyword And Continue On Failure    Should Be True    ${status}    msg=Add SIC Code button not visible
+#     # ${status}=    Run Keyword And Return Status    Click    ${Add_sic_code_button}
+#     # Run Keyword And Continue On Failure    Should Be True    ${status}    msg=Failed to click Add SIC Code button
+#     # ${SIC_input}=    Get Elements    ${Add_sic_value}
+#     # FOR    ${element}    IN    @{SIC_input}
+#     #     ${status}=    Run Keyword And Return Status    Fill Text    ${element}    ${SIC_value}
+#     #     Run Keyword And Continue On Failure    Should Be True    ${status}    msg=Failed to enter SIC code value
+#     #     Exit For Loop
+#     # END
+
+#     # --- Delete and Add NAICS Code ---
+#     ${delete_naics}=    Catenate    SEPARATOR=    ${delete_sic_code_prefix}    ${NAICS_value}    ${delete_sic_code_sufix}
+
+#     ${status}=    Run Keyword And Return Status    Click    ${delete_naics}
+#     Run Keyword And Continue On Failure    Should Be True    ${status}    msg=Failed to click delete NAICS button
+
+#     ${status}=    Run Keyword And Return Status    Wait For Elements State    ${Add_naic_code_button}    visible    ${display_timeout}
+#     Run Keyword And Continue On Failure    Should Be True    ${status}    msg=Add NAICS Code button not visible
+
+#     ${status}=    Run Keyword And Return Status    Click    ${Add_naic_code_button}
+#     Run Keyword And Continue On Failure    Should Be True    ${status}    msg=Failed to click Add NAICS Code button
+
+#     ${NAICS_input}=    Get Elements    ${Add_naics_value}
+#     FOR    ${element}    IN    @{NAICS_input}
+#         ${status}=    Run Keyword And Return Status    Fill Text    ${element}    ${NAICS_value}
+#         Run Keyword And Continue On Failure    Should Be True    ${status}    msg=Failed to fill NAICS code value
+#         Exit For Loop
+#     END
 
 Veify That Empty NAICS and SIC box should not be present in the clearance 
     [Documentation]    This method is Veify That Empty NAICS and SIC box should not be present in the clearance    
@@ -6028,7 +6078,11 @@ Verify the filter option in Convr Submission page
             ${status}    Run Keyword And Return Status    Should Contain    ${Actual_value}    ${fill_value}    msg=Filtered value ${Actual_value} does not match expected value ${fill_value} filter option is not working as expected
             Run Keyword And Continue On Failure    should be True    ${status}    msg=Filtered value ${Actual_value} does not match expected value ${fill_value} : filter option is not working as expected
             END
-
+            ${status}    Run Keyword And Return Status    Wait For Elements State    ${Remove_filter}    visible    timeout=${display_timeout}
+            Run Keyword And Continue On Failure    should be True    ${status}    msg=Remove filter button is not visible
+        
+            ${status}    Run Keyword And Return Status    Click    ${Remove_filter}
+            Run Keyword And Continue On Failure    should be True    ${status}    msg=Remove filter button is not clicked 
     END
 
 verify the Checkbox Type filter in Convr Submission page
@@ -6111,7 +6165,7 @@ verify the Checkbox Type filter in Convr Submission page
                 ${clicked}=    Run Keyword And Return Status    Click    ${locator}
                 Run Keyword And Continue On Failure    Should Be True    ${clicked}    msg=Could not uncheck checkbox for option ${element}
                 press Keys    ${Filter_locator}    Escape
-        
+                
         END
     Log    Expected Options: ${expected_options_value}
     Log    Actual Options: ${Actual_options}
