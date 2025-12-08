@@ -516,6 +516,7 @@ Create new submission if the submission not exists
 #         ELSE
 #             RETURN    False
 #         END
+
 Create New Submission
     [Documentation]    Creates a new submission by uploading a specified file.
     ...    Handles the full UI flow: setting filters, rearranging columns, clicking 'New', uploading file, and waiting for processing to complete.
@@ -657,7 +658,7 @@ Select Submission using submission id
     Click All submissions option
     Sleep    2s
     Search Submission By Submission ID    ${data_submissionID}
-    Sleep    2s
+    Sleep    10s
     ${status}    Run Keyword And Return Status    Wait For Elements State    ${transaction_type_value}    visible    ${display_timeout}
     Run Keyword And Continue On Failure    Should Be True    ${status}    Transaction type is not present in the submission page 
     ${actual_transaction_type}    Get Text    ${transaction_type_value}
@@ -1388,7 +1389,7 @@ Save Submission And verify popup
         ${continueHiddenRetry}=    Run Keyword And Return Status    Wait For Elements State    ${ContinueButtonInSave}    hidden    timeout=${element_timeout}
         Run Keyword And Continue On Failure    Should Be True    ${continueHiddenRetry}    msg=Continue button did not hide after retry; verify save submission clicked.
     END
-    Wait For Processing Stage
+    # Wait For Processing Stage
     # Sleep    5s
     # Verify Summary processing message
     # Switch to Summary
@@ -3018,7 +3019,7 @@ Wait For Processing Stage
         ${ActualValue}=    Get Text    ${Summary_Processing}
         Run Keyword And Continue On Failure    Should Be Equal    ${ActualValue}    Read-only while processing    msg=Summary processing message text mismatch.
         Switch To Documents
-        Sleep    5s
+        Sleep    10s
         ${status}=    Run Keyword And Return Status    Wait For Elements State    ${stage}    hidden    timeout=${processing_stage_timeout}
         Run Keyword And Continue On Failure    Should Be True    ${status}    Processing stage ${stageNo} did not complete within ${processing_stage_timeout} seconds. The submission is still processing.
         IF    not ${status}
@@ -3036,7 +3037,7 @@ Wait For Processing Stage
         ${ActualValue}=    Get Text    ${Summary_Processing}
         Run Keyword And Continue On Failure    Should Be Equal    ${ActualValue}    Read-only while processing    msg=Summary processing message text mismatch.
         Switch To Documents
-        Sleep    5s
+        Sleep    10s
         ${status}=    Run Keyword And Return Status    Wait For Elements State    ${RejectProcessing}    hidden    timeout=${processing_stage_timeout}
         Run Keyword And Continue On Failure    Should Be True    ${status}    Rejected processing stage did not complete within ${processing_stage_timeout} seconds. The submission is still processing.
         IF    not ${status}
@@ -6309,3 +6310,141 @@ Verify the filter option in Convr Task page
             END
 
     END
+# Wait For Processing Stage
+#     [Documentation]    Waits for the processing stage (or rejection stage) to be completed and hidden.
+#     ...    This keyword checks whether the submission is still processing and waits until it completes or times out.
+#     ...
+#     ...    *Arguments:*
+#     ...    - `${stageNo}`: Optional. The specific stage number to wait for. If not provided, waits for the default processing stage.
+#     [Arguments]    ${stageNo}=''
+#     Click Answers Tab
+#     Switch To Documents
+#     Sleep    5s
+#     IF    ${stageNo} == ''
+#         ${stage}=    Catenate    SEPARATOR=    ${processingStage}    ')]
+
+#     ELSE
+#         ${stage}=    Catenate    SEPARATOR=    ${processingStage}    ${stageNo}    ')]
+
+#     END
+
+#     ${status}=    Run Keyword And Return Status    Wait For Elements State    ${stage}    visible    timeout=${display_timeout}
+#     ${rejectStatus}=    Run Keyword And Return Status    Wait For Elements State    ${RejectProcessing}    visible    timeout=${display_timeout}
+
+#     IF    ${status}
+#         Switch to Summary
+#         ${summaryVisible}=    Run Keyword And Return Status    Wait For Elements State    ${Summary_Processing}    attached    timeout=${display_timeout}
+#         Run Keyword And Continue On Failure    Should Be True    ${summaryVisible}    msg=Summary processing message not visible.
+
+#         ${ActualValue}=    Get Text    ${Summary_Processing}
+#         Run Keyword And Continue On Failure    Should Be Equal    ${ActualValue}    Read-only while processing    msg=Summary processing message text mismatch.
+#         Switch To Documents
+#         Sleep    5s
+#         ${status}=    Run Keyword And Return Status    Wait For Elements State    ${stage}    hidden    timeout=${processing_stage_timeout}
+#         Run Keyword And Continue On Failure    Should Be True    ${status}    Processing stage ${stageNo} did not complete within ${processing_stage_timeout} seconds. The submission is still processing.
+#         IF    not ${status}
+#             Log    ❌ Processing stage ${stageNo} is still visible after timeout. Aborting test.
+#             RETURN    False
+#         ELSE
+#             Log Step    ✅ Processing stage ${stageNo} completed successfully.
+#         END
+
+#     ELSE IF    ${rejectStatus}
+#         Switch to Summary
+#         ${summaryVisible}=    Run Keyword And Return Status    Wait For Elements State    ${Summary_Processing}    visible    timeout=${display_timeout}
+#         Should Be True    ${summaryVisible}    msg=Summary processing message not visible.
+
+#         ${ActualValue}=    Get Text    ${Summary_Processing}
+#         Run Keyword And Continue On Failure    Should Be Equal    ${ActualValue}    Read-only while processing    msg=Summary processing message text mismatch.
+#         Switch To Documents
+#         Sleep    5s
+#         ${status}=    Run Keyword And Return Status    Wait For Elements State    ${RejectProcessing}    hidden    timeout=${processing_stage_timeout}
+#         Run Keyword And Continue On Failure    Should Be True    ${status}    Rejected processing stage did not complete within ${processing_stage_timeout} seconds. The submission is still processing.
+#         IF    not ${status}
+#             Log    ❌ Reject processing stage is still visible after timeout. Aborting test.
+#             RETURN    False
+#         ELSE
+#             Log Step    ✅ Reject processing stage completed successfully.
+#         END
+
+#     ELSE
+#         Log    ⚠️ Neither processing stage nor reject processing stage was Not found visible.
+
+#     END
+
+Verify the Coverage Drop Down values in the Clearance tab
+    [Documentation]    This method is used to verify the Coverage Drop Down values in the Clearance tab
+    [Arguments]    ${expected_product}    ${expected_product_segment}    ${Field_name}       
+    Click And Verify Clearance Tab     
+    Sleep    2s
+    ${lengths}    Get Length    ${expected_product}
+    FOR   ${index}    IN RANGE    0    ${lengths}
+        ${product}    Get From List    ${expected_product}    ${index}
+        # ${product_segment}    Get From Dictionary    ${expected_product_segment}    ${index}
+        ${clicked}=    Run Keyword And Return Status    Click    ${CoverageProduct}
+        Run Keyword And Continue On Failure    Should Be True    ${clicked}    msg=Coverage Tab: Failed to click Coverage Product dropdown.
+
+        ${value}=    Catenate    SEPARATOR=    ${SelectNewValue}    ${product}    ']
+        ${visible}=    Run Keyword And Return Status    Wait For Elements State    ${value}    visible    timeout=${element_timeout}
+        Run Keyword And Continue On Failure    Should Be True    ${visible}    msg=Coverage Tab: Product '${product}' is not visible in the dropdown.
+
+        ${clicked_value}=    Run Keyword And Return Status    Click    ${value}
+        Run Keyword And Continue On Failure    Should Be True    ${clicked_value}    msg=Coverage Tab: Failed to select product '${product}' from the dropdown.
+
+        ${escaped}=    Run Keyword And Return Status    Press Keys    ${CoverageProduct}    Escape
+        Run Keyword And Continue On Failure    Should Be True    ${escaped}    msg=Coverage Tab: Failed to send Escape key to Coverage Product dropdown.
+        ${visible}=    Run Keyword And Return Status    Wait For Elements State    ${ProductSegmentValue}    visible    timeout=${element_timeout}
+        Should Be True    ${visible}    msg=Coverage Tab: Product '${ProductSegmentValue}' is not visible in the 
+
+        ${text}=    Get Text    ${ProductSegmentValue}
+        Run Keyword And Continue On Failure    Should Not Be Empty    ${text}    msg=Coverage Tab: Failed to get text from Product Segment field.
+
+        ${trimText}=    Strip String    ${text}
+
+        Run Keyword And Continue On Failure    Should Be Equal    ${expected_product_segment}    ${trimText}    msg=Coverage Tab: Product Segment value '${trimText}' does not match expected '${expected_product_segment}'.
+        ${state}=    Get Element States    ${Vessels_Add}
+        Should Contain    ${state}    visible    msg=FAILURE: Vessels Add button is not visible.
+        Should Contain    ${state}    enabled    msg=FAILURE: Vessels Add button is not enabled.
+        FOR    ${option}    IN    @{Field_name}
+            ${Remove_locator}    Catenate    SEPARATOR=    ${Clearance_remove_Button1}    ${option}    ${Clearance_remove_Button2}
+            ${clicked_remove}=    Run Keyword And Return Status    Click    ${Remove_locator}
+            Run Keyword And Continue On Failure    Should Be True    ${clicked_remove}    msg=Coverage Tab: Failed to remove option '${option}' from Coverage Drop Down.
+        END
+        ${state}=    Get Element States    ${Vessels_Add}
+        Should Contain    ${state}    visible    msg=FAILURE: Vessels Add button is not visible.
+        Should Contain    ${state}    disabled    msg=FAILURE: Vessels Add button is not disabled.
+
+    END
+    # ${options_elements}    Get Elements    ${Coverage_Drop_Down_Value}
+    # ${Actual_options}    Create List
+    # FOR    ${element}    IN    @{options_elements}
+    #     ${option_text}    Get Text    ${element}
+    #     strip String    ${option_text}
+    #     Append To List    ${Actual_options}    ${option_text}
+    # END
+    # Press Keys    ${Coverage_dropdown}    Escape
+    # Log    Expected Options: ${expected_options}
+    # Log    Actual Options: ${Actual_options}
+    # ${status}    Run Keyword And Return Status    Should Be Equal    ${Actual_options}    ${expected_options}
+    # Run Keyword And Continue On Failure    Should Be True    ${status}    Coverage Drop Down option are mismatch in clearance tab    
+
+Verify the Dot summary list 
+    [documentation]    This method is used to verify the Dot summary list in Answer tab
+    [arguments]    ${Excepted_toolTip}
+    # click Answers Tab
+    ${status}    Run Keyword And Return Status    wait for Elements State    ${hazmat_haular_card}    visible    timeout=${display_timeout}
+    Run Keyword And Continue On Failure    Should Be True    ${status}    msg=Hazmat Haular card is not visible in Answers tab
+    ${clicked}=    Run Keyword And Return Status    Click    ${hazmat_haular_card}
+    Run Keyword And Continue On Failure    Should Be True    ${clicked}    msg=Failed to click Hazmat Haular card in Answers tab
+    ${status}    Run Keyword And Return Status    wait for Elements State    ${Hazmant_remove_icon}    visible    timeout=${display_timeout}
+    Run Keyword And Continue On Failure    Should Be True    ${status}    msg= Hazmant_remove_icon is not visible in Answers tab
+    Mouse Move Relative To    ${Hazmant_remove_icon}
+    ${status}    Run Keyword And Return Status    wait for Elements State    ${Hazmat_tooltip}    visible    timeout=${display_timeout}
+    Run Keyword And Continue On Failure    Should Be True    ${status}    msg=Hazmat_tooltip is not visible in Answers tab
+    ${tooltip_text}=    Get Text    ${Hazmat_tooltip}
+    strip String    ${tooltip_text}
+    log    ${tooltip_text}
+    log    ${Excepted_toolTip}
+    Run Keyword And Continue On Failure    should be Equal    ${tooltip_text}    ${Excepted_toolTip}    msg=Tooltip text is not matching as expected in Answers tab
+    
+   

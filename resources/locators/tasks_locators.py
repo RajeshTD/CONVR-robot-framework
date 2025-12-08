@@ -81,3 +81,8 @@ CAT_submit_request="xpath=//ng-transclude[normalize-space()='Submit Request']"
 CAT_error="xpath=//div[text()='Please complete all required fields']"
 CAT_Saved_popup="xpath=//div[text()='CAT Request Saved Successfully']"
 Task_cancel_button="xpath=//d3-button[@test-id='cancel-changes-btn']"
+
+Task_requied_checkbox="xpath=//input[@id='task-required']"
+Task_premium_checkbox="xpath=//input[@id='premium-bearing']"
+Task_name_in_edit="xpath=//input[@test-id='task-name-inp']"
+Created_task="xpath=//a[text()='Task for verify automation']"

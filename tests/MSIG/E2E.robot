@@ -3574,7 +3574,7 @@ TC_E2E_069
     Run Keyword And Continue On Failure    Verify Clearance Data in Processing Tab based on Underwriter name    ${TC_E2E_069['Excepted_Processingdata']}
     Run Keyword And Continue On Failure    Verify Slider Value in Forms Tab
     # Run Keyword And Continue On Failure    uplod the file via air template    ${TC_E2E_069['FileName']}
-
+    
 TC_E2E_207
     [Documentation]    This test case for the msig 207 bug fix testcases 
     Run Keyword And Continue On Failure    Verify My Assignments Tab is displayed as a default tab
@@ -3601,46 +3601,64 @@ TC_email_060
     Run Keyword And Continue On Failure    Verify My Assignments Tab is displayed as a default tab
     # ${submission_id}    Create New Submission    ${TC_E2E_001['FileName']}    @{TC_E2E_001['SubmissionColumnNames']}
     # Set Suite Variable   ${submission_id_1}    ${submission_id}    
-    Select Submission using submission id    9d366237-9bff-44f4-9b57-13e0b5ef33b6    @{TC_E2E_001['SubmissionColumnNames']}
+    Select Submission using submission id    addf5b5d-5c76-40d5-8773-b393388cf169    @{TC_E2E_001['SubmissionColumnNames']}
     Run Keyword And Continue On Failure    Verify Submission page is displayed
     Click Edit Submission
     Switch to Documents
-    Run Keyword And Continue On Failure    Upload given Documents in document tab    ${TC_email_060['eml_no_data']['file_name']}    ${TC_email_060['eml_no_data']['sub_attachement']}    False    
+    Run Keyword And Continue On Failure    Upload given Documents in document tab    ${TC_email_060['eml_no_data']['file_name']}    ${TC_email_060['eml_no_data']['sub_attachement']}    False    False    
+    Run Keyword And Continue On Failure    verify the no of files in Archived    1
+    Run Keyword And Continue On Failure    delete the archived files
+    # Run Keyword And Continue On Failure    verify the no of files in Archived    0
     # Run Keyword And Continue On Failure    Remove Document after Upload    ${TC_email_060['eml_no_data']['file_name']}
     # Run Keyword And Continue On Failure    Upload SOV and Loss Run Documents    ${TC_email_060['eml_no_data']['file_name']}
-    Wait For Processing Stage
+    # Wait For Processing Stage
     # Run Keyword And Continue On Failure    verify the Email Body Document    ${TC_email_060['eml_no_data']['file_name']}    ${TC_email_060['eml_no_data']['Expected_email_Msg']}
-    Run Keyword And Continue On Failure    delete the given file in processed Tab    @{TC_email_060['eml_no_data']['document_type']}
-    Run Keyword And Continue On Failure    verify files are deleted    @{TC_email_060['eml_no_data']['document_type']}
+#     Run Keyword And Continue On Failure    delete the given file in processed Tab    @{TC_email_060['eml_no_data']['document_type']}
+#     Run Keyword And Continue On Failure    verify files are deleted    @{TC_email_060['eml_no_data']['document_type']}
+#     Run Keyword And Continue On Failure    delete the archived files
+# #   
+#     # Run Keyword And Continue On Failure    Remove Document after Upload    ${TC_email_060['eml_normal_data']['file_name']}          
+    Run Keyword And Continue On Failure    Upload given Documents in document tab    ${TC_email_060['eml_normal_data']['file_name']}    ${TC_email_060['eml_normal_data']['attachement_detials']}    False    True    
+    Run Keyword And Continue On Failure    verify the no of files in Archived    1
     Run Keyword And Continue On Failure    delete the archived files
-#   
-    # Run Keyword And Continue On Failure    Remove Document after Upload    ${TC_email_060['eml_normal_data']['file_name']}          
-    Run Keyword And Continue On Failure    Upload given Documents in document tab    ${TC_email_060['eml_normal_data']['file_name']}    ${TC_email_060['eml_no_data']['sub_attachement']}    False
-    Wait For Processing Stage
-    # Run Keyword And Continue On Failure    verify the Email Body Document    ${TC_email_060['eml_normal_data']['file_name']}    ${TC_email_060['eml_normal_data']['Expected_email_Msg']}
-    # Run Keyword And Continue On Failure    verify the file info details    ${TC_email_060['eml_normal_data']['file_name']}    ${TC_email_060['eml_normal_data']}
     Run Keyword And Continue On Failure    delete the given file in processed Tab    @{TC_email_060['eml_normal_data']['document_type']}
-    Run Keyword And Continue On Failure    verify files are deleted    @{TC_email_060['eml_normal_data']['document_type']}
+#     Run Keyword And Continue On Failure    Upload given Documents in document tab    ${TC_email_060['eml_normal_data']['file_name']}    ${TC_email_060['eml_no_data']['sub_attachement']}    False
+#     Wait For Processing Stage
+#     # Run Keyword And Continue On Failure    verify the Email Body Document    ${TC_email_060['eml_normal_data']['file_name']}    ${TC_email_060['eml_normal_data']['Expected_email_Msg']}
+#     # Run Keyword And Continue On Failure    verify the file info details    ${TC_email_060['eml_normal_data']['file_name']}    ${TC_email_060['eml_normal_data']}
+#     Run Keyword And Continue On Failure    delete the given file in processed Tab    @{TC_email_060['eml_normal_data']['document_type']}
+#     Run Keyword And Continue On Failure    verify files are deleted    @{TC_email_060['eml_normal_data']['document_type']}
+#     Run Keyword And Continue On Failure    delete the archived files
+# # eml_pdf_plus_nameless
+    Run Keyword And Continue On Failure    Upload given Documents in document tab    ${TC_email_060['eml_pdf_plus_nameless']['file_name']}    ${TC_email_060['eml_pdf_plus_nameless']['attachement_detials']}    True    False    
+    Run Keyword And Continue On Failure    verify the no of files in Archived    1
     Run Keyword And Continue On Failure    delete the archived files
-# eml_pdf_plus_nameless
-    # Run Keyword And Continue On Failure    Remove Document after Upload    ${TC_email_060['eml_pdf_plus_nameless']['file_name']}
-    Run Keyword And Continue On Failure    Upload given Documents in document tab    ${TC_email_060['eml_pdf_plus_nameless']['file_name']}    ${TC_email_060['eml_no_data']['sub_attachement']}    True
-    Wait For Processing Stage
-    # Run Keyword And Continue On Failure    verify the Email Body Document    ${TC_email_060['eml_pdf_plus_nameless']['file_name']}    ${TC_email_060['eml_pdf_plus_nameless']['Expected_email_Msg']}
-    # Run Keyword And Continue On Failure    verify the file info details    ${TC_email_060['eml_pdf_plus_nameless']['file_name']}    ${TC_email_060['eml_pdf_plus_nameless']}
     Run Keyword And Continue On Failure    delete the given file in processed Tab    @{TC_email_060['eml_pdf_plus_nameless']['document_type']}
-    Run Keyword And Continue On Failure    verify files are deleted    @{TC_email_060['eml_pdf_plus_nameless']['document_type']}
-    Run Keyword And Continue On Failure    delete the archived files
-    # eml_normal_plus
-    Run Keyword And Continue On Failure    Remove Document after Upload    ${TC_email_060['eml_normal_plus']['file_name']}
-    Run Keyword And Continue On Failure    Upload given Documents in document tab    ${TC_email_060['eml_normal_plus']['file_name']}    ${TC_email_060['eml_no_data']['sub_attachement']}    False
+
+#     # Run Keyword And Continue On Failure    Remove Document after Upload    ${TC_email_060['eml_pdf_plus_nameless']['file_name']}
+#     Run Keyword And Continue On Failure    Upload given Documents in document tab    ${TC_email_060['eml_pdf_plus_nameless']['file_name']}    ${TC_email_060['eml_no_data']['sub_attachement']}    True
+#     Wait For Processing Stage
+#     # Run Keyword And Continue On Failure    verify the Email Body Document    ${TC_email_060['eml_pdf_plus_nameless']['file_name']}    ${TC_email_060['eml_pdf_plus_nameless']['Expected_email_Msg']}
+#     # Run Keyword And Continue On Failure    verify the file info details    ${TC_email_060['eml_pdf_plus_nameless']['file_name']}    ${TC_email_060['eml_pdf_plus_nameless']}
+#     Run Keyword And Continue On Failure    delete the given file in processed Tab    @{TC_email_060['eml_pdf_plus_nameless']['document_type']}
+#     Run Keyword And Continue On Failure    verify files are deleted    @{TC_email_060['eml_pdf_plus_nameless']['document_type']}
+#     Run Keyword And Continue On Failure    delete the archived files
+#     # eml_normal_plus
+#     Run Keyword And Continue On Failure    Remove Document after Upload    ${TC_email_060['eml_normal_plus']['file_name']}
+#     Run Keyword And Continue On Failure    Upload given Documents in document tab    ${TC_email_060['eml_normal_plus']['file_name']}    ${TC_email_060['eml_no_data']['sub_attachement']}    False
     
-    # Run Keyword And Continue On Failure    verify the Email Body Document    ${TC_email_060['eml_normal_plus']['file_name']}    ${TC_email_060['eml_normal_plus']['Expected_email_Msg']}
-    # Run Keyword And Continue On Failure    verify the file info details    ${TC_email_060['eml_normal_plus']['file_name']}    ${TC_email_060['eml_normal_plus']}
+    Run Keyword And Continue On Failure    Upload given Documents in document tab    ${TC_email_060['eml_normal_plus']['file_name']}    ${TC_email_060['eml_normal_plus']['attachement_detials']}    True    False    
+    # Run Keyword And Continue On Failure    verify the no of files in Archived    1
     Run Keyword And Continue On Failure    delete the given file in processed Tab    @{TC_email_060['eml_normal_plus']['document_type']}
-    Run Keyword And Continue On Failure    verify files are deleted    @{TC_email_060['eml_normal_plus']['document_type']}
     Run Keyword And Continue On Failure    delete the archived files
-    # Run Keyword And Continue On Failure    verify the no of files in Archived    0    
+
+
+#     # Run Keyword And Continue On Failure    verify the Email Body Document    ${TC_email_060['eml_normal_plus']['file_name']}    ${TC_email_060['eml_normal_plus']['Expected_email_Msg']}
+#     # Run Keyword And Continue On Failure    verify the file info details    ${TC_email_060['eml_normal_plus']['file_name']}    ${TC_email_060['eml_normal_plus']}
+#     Run Keyword And Continue On Failure    delete the given file in processed Tab    @{TC_email_060['eml_normal_plus']['document_type']}
+#     Run Keyword And Continue On Failure    verify files are deleted    @{TC_email_060['eml_normal_plus']['document_type']}
+#     Run Keyword And Continue On Failure    delete the archived files
+#     # Run Keyword And Continue On Failure    verify the no of files in Archived    0    
 
 TC_E2E_071
     [Documentation]    This testcase is to verify E2E_071    
@@ -3672,18 +3690,20 @@ TC_E2E_071
         # ${submission_id}    Create New Submission    ${TC_E2E_071['FileName']}    @{TC_E2E_071['SubmissionColumnNames']}   
         Select Submission using submission id    e7a957c7-dfc6-4c60-b020-cfd7026736c3    @{TC_E2E_071['SubmissionColumnNames']}
         Click Edit Submission
-        verify that added comment should be displayed    Stage 2
-        Verify that user can cancel the comment    ${TC_E2E_071['Comment_user']}    Stage 2
-        Verify user can add the comment in the Summary page    ${TC_E2E_071['Comment_user']}    Stage 2     
-        Verify user can recive the comment notification in the Summary page
+        # verify that added comment should be displayed    Stage 2
+        # Verify that user can cancel the comment    ${TC_E2E_071['Comment_user']}    Stage 2
+        # Verify user can add the comment in the Summary page    ${TC_E2E_071['Comment_user']}    Stage 2     
+        # Verify user can recive the comment notification in the Summary page
         click Answers Tab
         Cancel the New Task    ${TC_E2E_071['taskdata']}
         Create New Task    ${TC_E2E_071['taskdata']}
         click Answers Tab
         Navigate To All Submissions page from submissions
         Switch to Convr Task tab
+        Verify that the Created task should be relflected in the all options
         ${After_created_task_length}    Get the length of the created task in the Convr Task Tab
-        # ${After_Assign_task_length}    Get the length of the Assigned task in the Convr Task Tab
+        ${After_Assign_task_length}    Get the length of the Assigned task in the Convr Task Tab
+
         # ${status}    Run Keyword And Return    Should Not Be Equal    ${before_Assign_task_length}    ${After_Assign_task_length}
         # Run Keyword And Continue On Failure    Should Be True    ${status}    Assigned task is not updated in the convr task page
         # Navigate To All Submissions page from submissions
@@ -3693,7 +3713,22 @@ TC_E2E_071
         # Click Edit Submission
         # click Answers Tab
         # Switch To Documents
-        
+TC_E2E_208
+    [Documentation]    This test case for the msig 208 bug fix testcases 
+    Run Keyword And Continue On Failure    Verify My Assignments Tab is displayed as a default tab
+    Switch to Convr Task tab
+    Verify that the Created task should be relflected in the all options
+    Click    ${Convr_submission_button}
+    sleep    2s
+    Run Keyword And Continue On Failure    Verify My Assignments Tab is displayed as a default tab
+    # ${submission_id}    Create New Submission    ${TC_E2E_068['FileName']}    @{TC_E2E_068['SubmissionColumnNames']}
+    # Set Suite Variable   ${submission_id_1}    ${submission_id}
+    Select Submission using submission id    03563461-e32f-4723-b936-4ec7b1fad2dc    @{TC_E2E_068['SubmissionColumnNames']}
+    Run Keyword And Continue On Failure    Verify Submission page is displayed
+    Verify the Dot summary list    ${TC_E2E_208['Tool_tip']}
+    Verify the release version in all tabs
+    Verify the Coverage Drop Down values in the Clearance tab    ${TC_E2E_208['product']}    ${TC_E2E_208['product_segment']}    ${TC_E2E_208['field_name']}
+    
 *** Keywords ***
 Run Pre-requiste Steps for Stage 1
     # Create User If the User is not present    ${NewUser}
@@ -3795,8 +3830,10 @@ Run Pre-requiste for Step 1 2 & 3
     # ${newSubmissionID}    Get New Submission ID After Child Submission
     RETURN    ${new_submission_id_1}
     ELSE IF    '${child_submission_status_1}' == 'False'
-        FAIL    Child Submission is not created. Processing stage should be hidden within the time. The submission is still processing even after ${processing_stage_timeout} seconds. Aborting test case Stage 3 - Under Review.
+        FAIL    Child Submission is not created. Processing stage should be hidden within the time. The submission is still processing even after ${processing_stage_timeout} seconds. Aborting test case Stage 3 - Under Review.        
+    
     END
+    
 Create and Verify Task In Task Tab
     [Arguments]    ${TC_E2E_Data}
     Run Keyword And Continue On Failure    Verify that System shows Correct Task Number

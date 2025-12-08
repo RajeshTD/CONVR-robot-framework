@@ -1296,9 +1296,11 @@ delete the given file in processed Tab
 verify the no of files in Archived      
     [Documentation]    This method is used to verify the number of file present in archived tab
     [Arguments]    ${expected_length}
+    Sleep    5s
     Click    ${Doc_Archived_loc}
     ${elements}    Get Elements    ${Archived_document_files}
     ${Actual_legth}    Get Length    ${elements}
+    ${Actual_legth}    Convert To String    ${Actual_legth}
     Run Keyword And Continue On Failure    Should Be Equal    ${Actual_legth}    ${expected_length}
 
 verify files are deleted 
@@ -1329,7 +1331,7 @@ delete the archived files
 
 verify sub attachement files in document while uploading 
     [Documentation]    this mwthod is used for the verify the sub attachment files are present are not 
-    [Arguments]    ${filename}
+
     Sleep    2s
     ${status}    Run Keyword And Return Status    ${Document_Sub_files}    
     IF    ${status}
@@ -1345,20 +1347,20 @@ verify sub attachement files in document while uploading
     END
     Log    ${filename}
     Log    ${actual_file_name}
-    Run Keyword And Continue On Failure    Lists Should Be Equal    ${actual_file_name}    ${filename}
+    # Run Keyword And Continue On Failure    Lists Should Be Equal    ${actual_file_name}    ${filename}
     END
 
 
 
 Upload given Documents in document tab
     [Documentation]    Uploads multiple documents (like SOV and Loss Run) to the submission.
-    [Arguments]    ${FileName}    ${subattachement_file_name}    ${isprocessed}
+    [Arguments]    ${FileName}    ${Excepted_file_detials}    ${isprocessed}    ${subfileprocessed}
     Switch to Documents
     
             ${AbsolutePath}=    Normalize Path    ${path}${FileName}
             Upload File By Selector    ${UploadFile}    ${AbsolutePath}
             Sleep    2s
-            verify sub attachement files in document while uploading    ${subattachement_file_name} 
+            verify sub attachement files in document while uploading
    
   
         ${isArchive} =   Run Keyword And Return Status    Get Element States    ${ArchiveIcon}    validate    value & visible    'ArchiveIcon should be visible.'
@@ -1368,14 +1370,41 @@ Upload given Documents in document tab
             ${ArchieveFile}=    Catenate    SEPARATOR=    ${ArchiveButton1}    ${FileName}    ${ArchiveButton2}
             Click    ${ArchieveFile}
             Sleep    2s
-            Wait For Processing Stage
         END
+        
+        ${attachement_file}    Get Elements    ${Sub_attachement_file_toggle}
+        ${attachement_present}    Run Keyword And Return Status    Should Not Be Empty    ${attachement_file}
+        IF    '${attachement_present}' == 'True'
+            ${attachement_description}    Get Text    ${Sub_attachement_text}
+            Strip String    ${attachement_description}
+            Log    ${attachement_description}
+            ${attachement_file_detials}    Get Elements    ${Sub_attachement_files_detials}
+            ${Actual_file_detials}    Create List
+            FOR    ${element}    IN    @{attachement_file_detials}
+                ${detials}    Get Text    ${element}
+                Strip String    ${detials}
+                Append To List    ${Actual_file_detials}    ${detials}    
+                
+            END
+            Log    ${Actual_file_detials}
+            Log    ${Excepted_file_detials}
+            Run Keyword And Continue On Failure    Lists Should Be Equal    ${Actual_file_detials}    ${Excepted_file_detials}
+            IF   ${subfileprocessed}
+                FOR    ${element}    IN    @{attachement_file}   
+                    Click    ${element}
+                    Sleep    2s
+                END
+      
+
+            END
+        END    
     Wait For Elements State    ${UploadButton}    visible
     Click    ${UploadButton}
-    IF   ${isprocessed}    
-      Wait For Processing Stage
+    IF    '${isprocessed}' == 'True' or '${subfileprocessed}' == 'True'
+        Wait For Processing Stage
     END
 
+    
 verify The Reprocess should be disabled for HITL User
     [Documentation]    This method for the verify The Reprocess should be disabled for HITL User
     Click Answers Tab
@@ -1439,4 +1468,79 @@ Verify Claims Data From Loss Run File for Total claims extraction
         Fail    ❌ FAILED: Documents Tab – Uploaded Loss Run Claims data does not match expected file.\n${details}
     END
 
+Get Text from Release Version in Summary Tab
+    [Documentation]    This method retrieves the release version text from the Summary tab.
+    ${status}=    Run Keyword And Return Status    Wait For Elements State    ${Menu_button1}    visible    ${element_timeout}
+    Run Keyword And Continue On Failure    Should Be True    ${status}    Release version element in Summary tab is not visible.
+    ${status}    Run Keyword And Return Status    Click    ${Menu_button1}
+    Run Keyword And Continue On Failure    Should Be True    ${status}    Failed to click Menu button.
+    ${Status}    Run Keyword And Return Status    Wait For Elements State    ${Release_number1}    visible    ${display_timeout}
+    Run Keyword And Continue On Failure    Should Be True    ${Status}    Release version element is not present.
+    ${release_version}=    Get Text    ${Release_number1}
+    [Return]    ${release_version}
+Verify the release version in all tabs 
+    [Documentation]    This method is used to verify the release version in all tabs
+    [Arguments]    ${expected_version}=''
+    # Set Suite Variable    ${release_version}    ${expected_version}   
+    IF    ${expected_version} == ''
+    Switch To Summary
+    ${status}=    Run Keyword And Return Status    Wait For Elements State    ${Menu_button1}    visible    ${element_timeout}
+    Run Keyword And Continue On Failure    Should Be True    ${status}    Release version element in Summary tab is not visible.
+    ${status}    Run Keyword And Return Status    Click    ${Menu_button1}
+    Run Keyword And Continue On Failure    Should Be True    ${status}    Failed to click Menu button.
+    ${Status}    Run Keyword And Return Status    Wait For Elements State    ${Release_number1}    visible    ${display_timeout}
+    Run Keyword And Continue On Failure    Should Be True    ${Status}    Release version element is not present.
+    ${Excepted_release_version}=    Get Text    ${Release_number1}
+    
+    ${closed}=    Run Keyword And Return Status    Press Keys    ${Menu_button1}    Escape
+    Run Keyword And Continue On Failure    Should Be True    ${closed}    msg=Verify Workflow: Failed to close the workflow dropdown using Escape key. Ensure the dropdown is focused and enabled.
 
+    ELSE
+    ${status}=    Run Keyword And Return Status    Wait For Elements State    ${Menu_button1}    visible    ${element_timeout}
+    Run Keyword And Continue On Failure    Should Be True    ${status}    Release version element in Summary tab is not visible.
+    ${status}    Run Keyword And Return Status    Click    ${Menu_button1}
+    Run Keyword And Continue On Failure    Should Be True    ${status}    Failed to click Menu button.
+    ${Status}    Run Keyword And Return Status    Wait For Elements State    ${Release_number1}    visible    ${display_timeout}
+    Run Keyword And Continue On Failure    Should Be True    ${Status}    Release version element is not present.
+    ${Actual_summary_release}=    Get Text    ${Release_number1}
+    Run Keyword And Continue On Failure    Should Contain    ${Actual_summary_release}    ${expected_version}    Release version mismatch issue is occurring in Summary Tab.
+    END
+    click Answers Tab
+    ${all_fields}=    Get Elements    ${Loc_AllField}
+    Run Keyword And Continue On Failure    Should Not Be Empty    ${all_fields}    msg=Verify All Side Menu: No fields were found on the side menu.
+    FOR    ${element}    IN    @{all_fields}
+        ${field_name}=    Get Text    ${element}
+        Strip String    ${field_name}
+        Log    Verifying release version in tab: ${field_name}
+        ${status}=    Run Keyword And Return Status    Click    ${element}
+        Run Keyword And Continue On Failure    Should Be True    ${status}    Failed to click on tab: ${field_name}
+        ${Menu1}    Run Keyword And Return Status    Wait For Elements State    ${Menu_button1}    visible    ${display_timeout}
+        ${Menu2}    Run Keyword And Return Status    Wait For Elements State    ${Menu_button2}    visible    ${display_timeout}
+        IF    '${Menu1}' == 'True'
+            ${status}    Run Keyword And Return Status    Click    ${Menu_button1}
+            Run Keyword And Continue On Failure    Should Be True    ${status}    Failed to click Menu button.
+            ${Status}    Run Keyword And Return Status    Wait For Elements State    ${Release_number1}    visible    ${display_timeout}
+            Run Keyword And Continue On Failure    Should Be True    ${Status}    Release version element is not present.
+            ${release_version}=    Get Text    ${Release_number1}
+            Strip String    ${release_version}
+            Run Keyword And Continue On Failure    Should Contain    ${release_version}    ${Excepted_release_version}    Release version mismatch issue is occurring.
+            ${closed}=    Run Keyword And Return Status    Press Keys    ${Menu_button1}    Escape
+            Run Keyword And Continue On Failure    Should Be True    ${closed}    msg=Verify Workflow: Failed to close the workflow dropdown using Escape key. Ensure the dropdown is focused and enabled.
+            click Answers Tab
+        ELSE IF    '${Menu2}' == 'True'
+            ${status}    Run Keyword And Return Status    Click    ${Menu_button2}
+            Run Keyword And Continue On Failure    Should Be True    ${status}    Failed to click Menu button.
+            ${Status}    Run Keyword And Return Status    Wait For Elements State    ${Release_number2}    visible    ${display_timeout}
+            Run Keyword And Continue On Failure    Should Be True    ${Status}    Release version element is not present.
+            ${release_version}=    Get Text    ${Release_number2}
+            Strip String    ${release_version}
+            Run Keyword And Continue On Failure    Should Contain    ${release_version}    ${Excepted_release_version}    Release version mismatch issue is occurring.
+            ${closed}=    Run Keyword And Return Status    Press Keys    ${Menu_button2}    Escape
+            Run Keyword And Continue On Failure    Should Be True    ${closed}    msg=Verify Workflow: Failed to close the workflow dropdown using Escape key. Ensure the dropdown is focused and enabled.
+            click Answers Tab
+        END
+    END
+      
+    
+    
+    

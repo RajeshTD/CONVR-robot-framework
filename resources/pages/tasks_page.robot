@@ -394,7 +394,7 @@ Verify Table data in Tasks
 Create New Task
     [Documentation]    Creates a new task from within a submission.
     ...    Fills out the 'Create Task' form with the provided data including task name, assignee, due date, priority, and task details.
-    [Arguments]    ${data}
+    [Arguments]    ${data}    ${task_requierd_or_premium}=''
 
     # Wait and click Tasks menu
     ${status}=    Run Keyword And Return Status    Wait For Elements State    ${TasksMenu}    visible    timeout=${display_timeout}
@@ -425,23 +425,27 @@ Create New Task
     IF    ${customName}
         ${status}=    Run Keyword And Return Status    Select Options By    ${TaskNameDropdown}    label    Custom
         Run Keyword And Continue On Failure    Should Be True    ${status}    Create Task: Failed to select 'Custom' in TaskNameDropdown.
-
         ${randomNumber}=    Generate Random Number
         ${test_string}=    Catenate    SEPARATOR=    ${data['customName']}
         Log Step    'Converted string -> ${test_string}'
-
         ${status}=    Run Keyword And Return Status    Update Task Name    ${test_string}
         Run Keyword And Continue On Failure    Should Be True    ${status}    Create Task: Failed to update task name to '${test_string}'.
-
         Set Suite Variable    ${test_new_task_name}    ${test_string}
-
         ${status}=    Run Keyword And Return Status    Fill Text    ${CustomTaskName}    ${data['customName']}
         Run Keyword And Continue On Failure    Should Be True    ${status}    Create Task: Failed to fill CustomTaskName field.
     ELSE
         ${status}=    Run Keyword And Return Status    Select Options By    ${TaskNameDropdown}    label    ${data['TaskNameDropdown']}
         Run Keyword And Continue On Failure    Should Be True    ${status}    Create Task: Failed to select task name '${data['TaskNameDropdown']}' in dropdown.
     END
-
+    IF    '${task_requierd_or_premium}' == 'Task is required before advancing to the next stage.'
+        ${status}    Run Keyword And Return Status    Wait For Elements State    ${Task_requied_checkbox}    visible    ${display_timeout}
+        Should Be True    ${status}    Task required check box is not present in task page 
+        Check Checkbox    ${Task_requied_checkbox}    
+    ELSE IF    '${task_requierd_or_premium}' == 'Task is premium bearing.'
+        ${status}    Run Keyword And Return Status    Wait For Elements State    ${Task_premium_checkbox}    visible    ${display_timeout}
+        Should Be True    ${status}    Task premium check box is not present in task page 
+        Check Checkbox    ${Task_requied_checkbox}    
+    END
     # Assign task
     ${status}=    Run Keyword And Return Status    Click    ${AssignTo}
     Run Keyword And Continue On Failure    Should Be True    ${status}    Create Task: Failed to click 'AssignTo' field.
@@ -1550,3 +1554,44 @@ Cancel the New Task
     ELSE
         Log    Cancel button not working fine as expected in task page 
     END
+
+Verify while edit the task create detials should be present 
+    [Documentation]    Verify while edit the task create detials should be present
+    [Arguments]    ${data}
+
+    ${status}=    Run Keyword And Return Status    Wait For Elements State    ${Task_edit}    visible    timeout=${element_timeout}
+    Run Keyword And Continue On Failure    Should Be True    ${status}    msg=Edit Task: 'Edit' button is not visible on the task list.
+
+    ${status}=    Run Keyword And Return Status    Click    ${Task_edit}
+    Run Keyword And Continue On Failure    Should Be True    ${status}    msg=Edit Task: Failed to click on 'Edit' button.
+
+    ${status}=    Run Keyword And Return Status    Wait For Elements State    ${PriorityDropdown}    visible    timeout=${element_timeout}
+    Run Keyword And Continue On Failure    Should Be True    ${status}    msg=Edit Task: 'Priority' dropdown is not visible after clicking Edit.
+
+    ${status}=    Run Keyword And Return Status    Select Options By    ${PriorityDropdown}    label    ${data}
+    Run Keyword And Continue On Failure    Should Be True    ${status}    msg=Edit Task: Failed to select '${data}' in Priority dropdown.
+
+    ${status}=    Run Keyword And Return Status    Wait For Elements State    ${Save_edited_task}    visible    timeout=${element_timeout}
+    Run Keyword And Continue On Failure    Should Be True    ${status}    msg=Edit Task: 'Save' button is not visible after editing the task.
+
+    ${status}=    Run Keyword And Return Status    Click    ${Save_edited_task}
+    Run Keyword And Continue On Failure    Should Be True    ${status}    msg=Edit Task: Failed to click on 'Save' button.
+
+    Verify Task updated popup
+
+
+Verify that the Created task should be relflected in the all options
+    [Documentation]    This method verifies that the created task is reflected in all relevant options.
+    select the Options as per given data in Submission page    All tasks
+    ${status}    Run Keyword And Return Status    Wait For Elements State    ${Created_task}    visible    timeout=${element_timeout}
+    Run Keyword And Continue On Failure    Should Be True    ${status}    msg=Created Task: 'Created_task' is not visible in the task list after creation.
+    select the Options as per given data in Submission page    Created by me
+    ${status}    Run Keyword And Return Status    Wait For Elements State    ${Created_task}    visible    timeout=${element_timeout}
+    Run Keyword And Continue On Failure    Should Be True    ${status}    msg=Created Task: 'Created_task' is not visible in the task list after creation.
+    select the Options as per given data in Submission page    Assigned to me 
+    ${status}    Run Keyword And Return Status    Wait For Elements State    ${Created_task}    visible    timeout=${element_timeout}
+    Run Keyword And Continue On Failure    Should Be True    ${status}    msg=Created Task: 'Created_task' is not visible in the task list after creation.
+    
+Verify that the deleted task should not be relflected in the all options
+    [Documentation]    This method verifies that the deleted task is not reflected in all relevant options.
+    

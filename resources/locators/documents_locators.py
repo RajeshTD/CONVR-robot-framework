@@ -69,3 +69,12 @@ claims_button="xpath=//a[normalize-space()='Claims']"
 
 Reprocces_more_option="xpath=//button[normalize-space()='Reprocess']"
 Acord_more_option="xpath=//button[@test-id='asset-card-options-menu-acord']"
+Sub_attachement_text="xpath=//i[contains(@ng-class,'isEmailFileOpen')]/preceding-sibling::span"
+Sub_attachement_hide_button="xpath=//i[contains(@ng-class,'isEmailFileOpen')]"
+Sub_attachement_file_toggle="xpath=//div[contains(@ng-if,'emailFile.attachments.')]//button"
+Sub_attachement_files_detials="xpath=//assets-files-aside-add-files-email//div[@ng-if and @ng-repeat]//span[not(@aria-hidden='true')]"
+
+Menu_button1="xpath=//div[@data-sidebar='footer']//button[@data-sidebar='menu-button']"
+Menu_button2="xpath=//section[@id='submission-sidebar-user-profile']"
+Release_number1="xpath=//div[@aria-orientation='vertical']//div[contains(@class,'text-xs')]"
+Release_number2="xpath=(//div[contains(@class,'px-4 ng-binding')])[1]"

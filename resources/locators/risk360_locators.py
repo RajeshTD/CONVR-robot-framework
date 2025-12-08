@@ -24,4 +24,6 @@ AmCard_setpages="xpath=//select[@ng-change='$ctrl.changePageSize()']"
 Amcard_Nasicscode1="((//tbody//tr)["
 Amcard_Nasicscode2="]//td)[3]"
 Amcard_Nasicscode3="]//td)[1]"
- 
+Hazmat_tooltip="xpath=//div[@content='Not a hazmat carrier']//div[@ng-bind='content']"
+Hazmant_remove_icon="xpath=//i[@uib-tooltip='Not a hazmat carrier']"
+hazmat_haular_card="xpath=//d3-source[@test-id='app-finding-4']"
