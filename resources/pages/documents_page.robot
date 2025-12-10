@@ -1541,6 +1541,3 @@ Verify the release version in all tabs
         END
     END
       
-    
-    
-    

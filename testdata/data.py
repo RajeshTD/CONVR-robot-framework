@@ -74,7 +74,7 @@ TC_UI_281 = {
     "data_task_id": "c28412ff-a336-433d-8403-cc288df29f78",
     "TaskNameDropdown":"Custom",
     "customName": "Test Automation",
-    "NewTaskName": "Task for verify automation",
+    "NewTaskName": "Test Automation",
     "assignee": "MSIG TEST",
     "dueDate": "5-25-2025",
     "dueTime":"14:21",
@@ -2019,9 +2019,9 @@ TC_E2E_018 = {
     "Risk360_Card_Pages_Names": ["Digital Footprint Score:", "Financial Details", "Coverages",  "Valuations"],
     "SubmissionColumnNames": ["Status", "Submission", "Submission ID","Submission Group ID","Product"],
     "PolicyInfo":{
-    "PolicyFields":['Premium','Attachment Point','Policy Number','Class of Business','Policy Placement Type','Mailed Date'],
+    "PolicyFields":['Premium\n*','Attachment Point','Policy Number','Class of Business','Policy Placement Type','Mailed Date'],
     "premium":"1000",
-    "PolicyNumber":"TRS3423",
+    "PolicyNumber":"Edit",
     "AttachmentPoint":"3123232",
     "ClassOfBusiness":"Contractor",
     "PlacementType":"Excess",
@@ -3195,7 +3195,7 @@ TC_E2E_026={
 TC_E2E_027={
     "stage":"Bind",
     "stageNo":"5",
-     "expectedTitle": "Win-Con Inc. – Commercial Building Envelope Contractor",
+    "expectedTitle": "Win-Con Inc. – Commercial Building Envelope Contractor",
     "SubmissionColumnNames": ["Status", "Submission", "Submission ID","Submission Group ID","Product"],
     "Tab_Name":"Summary",
     "SummaryTableData":['General Liability\nCurrent','Wholesale Team\nCurrent','Bind','10/01/2017','10/01/2018','-','-','HYLANT GROUP, INC.'],
@@ -3253,6 +3253,22 @@ TC_E2E_028={
 "CardName":["Total Claims", "Frequency (claims / year)","Average Severity","Total Incurred"],
     "expectedAnalysisData":["3", "1.5","$1,123,228","$3,369,685"],
     "expectedTableData":["2021","$3,298,876","$0","$0","$3,655","1","2022","$70,809","$0","$0","$18,563","2"],	
+    "PolicyInfo":{
+    "PolicyFields":['Premium','Attachment Point','Policy Number\n*','Class of Business','Policy Placement Type','Mailed Date'],
+    "premium":"1000",
+    "PolicyNumber":"TRS3423",
+    "AttachmentPoint":"3123232",
+    "ClassOfBusiness":"Contractor",
+    "PlacementType":"Excess",
+    "MailedDate":"Edit",  
+    "CardName":["Total Claims", "Frequency (claims / year)","Average Severity","Total Incurred"],
+    "expectedAnalysisData":["3", "1.5","$1,123,228","$3,369,685"],
+    "expectedTableData":["2021","$3,298,876","$0","$0","$3,655","1","2022","$70,809","$0","$0","$18,563","2"],
+    "expectedWorkFlowHistory":['Bind', 'MSIG TEST', 'Task Created', 'Task Test Automation was Created', 'Bind', 'System', 'Task Created', 'Task Test Automation was Created','Cleared', 'MSIG TEST', 'Stage Update', 'Stage updated from In Draft to Cleared'],
+    },
+    "SummaryTableHeader":['Product','Status','Eff. Date','Exp. Date','Assigned','Exp. Premium','Agency'],
+    "SummaryTableData":['General Liability\nCurrent','Wholesale Team\nCurrent','Bind','10/01/2017','10/01/2018','-','-','HYLANT GROUP, INC.'],
+
 }
 TC_E2E_029={
     "stage":"Booked",
@@ -8169,6 +8185,23 @@ TC_E2E_208={
     "product":['Inland Marine','Cargo','Hull & Liability'],
     "product_segment":'Marine',
     "field_name":['Product(s)','Product Segment(s)'],
-    "Tool_tip":"Not a hazmat carrier"
+    "Tool_tip":"Not a hazmat carrier",
+    "Cancallation_data":{
+        "Header":"Update Workflow Stage: Cancelled",
+        "Labels":['Reasons', 'Bankruptcy, Liquidation, Reorganization', "Cancelled by Insured's Request",
+                   'Non-Payment of Premium', 'Work Covered By Policy Changed', 'Business/Operations Changed',
+                    'Closed Agent/Broker', 'Combined with Existing Policy', 'Agent/Broker Closed (MSIG Initiated)', 
+                    'Insured was Acquired', 'Agent/Broker Lost the Account', 'Insured out of Business', 'Placed with Another Carrier', 
+                    'Chose to Self-Insure', 'Underwriter Reasons: Aggregation', 'Underwriter Reasons: Capacity/Limits', 
+                    'Underwriter Reasons: Coverage', 'Underwriter Reasons: Limits', 'Underwriter Reasons: Other', 
+                    'Underwriter Reasons: Price', 'Underwriter Reasons: Loss Ratio', 'Underwriter Reasons: Non-compliance with survey requests or recommendations', 
+                    'Underwriter Reasons: Terrorism', 'Other', 'Details', 'Cancellation Effective Date'],
+        "Reason":"Test",  
+        "Excepted_popup":[],
+        "Excepted_datepopup":"",
+    },
+    "SummaryTableHeader":['Product','Status','Eff. Date','Exp. Date','Assigned','Exp. Premium','Agency'],
+    "SummaryTableData":['-\nCurrent','General Liability\nCurrent','In Draft','10/01/2017','10/01/2018','-','-','HYLANT GROUP, INC.'],
+    
     
 }

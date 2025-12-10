@@ -6447,4 +6447,52 @@ Verify the Dot summary list
     log    ${Excepted_toolTip}
     Run Keyword And Continue On Failure    should be Equal    ${tooltip_text}    ${Excepted_toolTip}    msg=Tooltip text is not matching as expected in Answers tab
     
-   
+Verify the Clearance expiry date in Clearance tab
+    [Documentation]    This method is used to verify the Clearance expiry date in Clearance tab
+    [Arguments]    ${Expected_date}       
+    Click And Verify Clearance Tab     
+    Sleep    2s
+    ${Exp_date}=    Get Attribute    ${clearance_exp_date}    value
+    ${Exp_date}=    Strip String    ${Exp_date}
+    Log    Expiry: ${Exp_date}
+    ${Exp_date}=    Convert Date    ${Exp_date}    result_format=%m/%d/%Y
+    Run Keyword And Continue On Failure    List Should Contain Value    ${Expected_date}    ${Exp_date}    msg=Clearance expiry date '${Exp_date}' does not match expected '${Expected_date}'.   
+Verify Summary Table Data for effective date change
+    [Documentation]    Verifies that the summary table headers and data match the expected values.
+    [Arguments]    ${expectedTableHeader}    ${expectedTableData}
+
+    @{actualTableHeader}=    Create List
+    @{actualTableData}=      Create List
+
+    ${table_visible}=    Run Keyword And Return Status    Wait For Elements State    ${AccountHistoryTable}    visible    timeout=${display_timeout}
+    Run Keyword And Continue On Failure    Should Be True    ${table_visible}    msg=Verify Summary Table Data: Account History table is not visible on the page. Cannot verify headers or data.
+
+    ${header_elements}=    Get Elements    ${AccountHistoryTableHeader}
+    Run Keyword And Continue On Failure    Should Not Be Empty    ${header_elements}    msg=Verify Summary Table Data: No header elements were found in the Account History table. Locator used: '${AccountHistoryTableHeader}'. The table might not be loaded, or the locator could be incorrect.
+
+    ${data_elements}=      Get Elements    ${AccountHistory}
+    Run Keyword And Continue On Failure    Should Not Be Empty    ${data_elements}    msg=Verify Summary Table Data: No data rows found in the Account History table. Locator used: '${AccountHistory}'. The table might be empty, not rendered yet, or the locator may be incorrect.
+
+    FOR    ${element}    IN    @{header_elements}
+        ${text}=    Get Text    ${element}
+        Run Keyword And Continue On Failure    Should Not Be Empty    ${text}    msg=Verify Summary Table Data: Failed to get text for a header element in the table.
+        ${trimText}=    Strip String    ${text}
+        Append To List    ${actualTableHeader}    ${trimText}
+    END
+
+    FOR    ${data}    IN    @{data_elements}
+        ${text}=    Get Text    ${data}
+        Run Keyword And Continue On Failure    Should Not Be Empty    ${text}    msg=Verify Summary Table Data: Failed to get text for a data cell in the table.
+        ${trimText}=    Strip String    ${text}
+        Append To List    ${actualTableData}    ${trimText}
+    END
+    Log    ${actualTableData}
+
+    ${headers_match}=    Run Keyword And Return Status    Lists Should Be Equal    ${expectedTableHeader}    ${actualTableHeader}
+    Run Keyword And Continue On Failure    Should Be True    ${headers_match}    msg=Verify Summary Table Data: Table headers do not match expected. Actual headers: ${actualTableHeader}, Expected: ${expectedTableHeader}
+
+    FOR    ${data1}    IN    @{expectedTableData}
+        ${data1}    Strip String    ${data1}
+        ${data_present}=    Run Keyword And Return Status    List Should Contain Value    ${actualTableData}    ${data1}
+        Run Keyword And Continue On Failure    Should Be True    ${data_present}    msg=Verify Summary Table Data: Data cell '${data1}' is not present in the expected table data: ${actualTableData}
+    END    

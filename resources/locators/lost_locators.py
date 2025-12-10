@@ -5,3 +5,14 @@ LostAcceptButton = "xpath=(//div[@ng-show='$ctrl.showWorkflowPopup']//button//*[
 LostReason1 = "xpath=//div[text()='"
 LostReason2 = "']//preceding-sibling::input"
 LostTag = "xpath=//li//span[normalize-space()='Lost']"
+
+Cancelled="xpath=//button//*[text()='Cancelled']"
+CancelledHeader="xpath=//div[@data-slot='dialog-header']//h2"
+Cancelledlabel="xpath=//form//div[@data-slot='form-item']//label"
+Detials_input="xpath=//label[text()='Details']//following::textarea"
+Cancelled_effectiveDate="xpath=//label[text()='Cancellation Effective Date']//following::input"
+Cancelled_SubmitButton="xpath=//button[text()='Submit']"
+Cancelled_CancelButton="xpath=//button[text()='Cancel']"
+Cancelled_Popup="xpath=//form//div[@data-slot='form-item']//p"
+
+

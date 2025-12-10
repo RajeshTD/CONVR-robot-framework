@@ -277,6 +277,50 @@ Re Enter the Policy Information details
         END
     END
 
+Enter the Policy Information without policy number
+    [Documentation]    Enters Policy Information details in the Summary tab.
+    ...    *Arguments:*
+    ...    - `${policy_Info}`: Dictionary containing policy details to enter.
+
+    [Arguments]    ${policy_Info}
+
+    ${clickStatus}=    Run Keyword And Return Status    Click    ${permium_Btn_Loc}
+    Should Be True    ${clickStatus}    'Failed to click Premium button.'
+
+    ${premiumVisible}=    Run Keyword And Return Status    Wait For Elements State    ${premium_field_loc}    visible    timeout=${element_timeout}
+    Should Be True    ${premiumVisible}    'Premium field not visible in Summary tab.'
+    ${premiumFillStatus}=    Run Keyword And Return Status    Fill Text    ${premium_field_loc}    ${policy_Info['premium']}
+    Should Be True    ${premiumFillStatus}    'Failed to fill Premium field.'
+
+    ${attachClick}=    Run Keyword And Return Status    Click    ${Attachement_point_btn_loc}
+    Should Be True    ${attachClick}    'Failed to click Attachment Point button.'
+
+    ${attachVisible}=    Run Keyword And Return Status    Wait For Elements State    ${Attachement_point_field_loc}    visible    timeout=${element_timeout}
+    Should Be True    ${attachVisible}    'Attachment Point field not visible in Summary tab.'
+    ${attachFillStatus}=    Run Keyword And Return Status    Fill Text    ${Attachement_point_field_loc}    ${policy_Info['AttachmentPoint']}
+    Should Be True    ${attachFillStatus}    'Failed to fill Attachment Point field.'
+
+    # ${policyClick}=    Run Keyword And Return Status    Click    ${policy_Btn_Loc}
+    # Should Be True    ${policyClick}    'Failed to click Policy button.'
+
+    # ${policyVisible}=    Run Keyword And Return Status    Wait For Elements State    ${policy_field_Loc}    visible    timeout=${element_timeout}
+    # Should Be True    ${policyVisible}    'Policy Number field not visible in Summary tab.'
+    # ${policyFillStatus}=    Run Keyword And Return Status    Fill Text    ${policy_field_Loc}    ${policy_Info['PolicyNumber']}
+    # Should Be True    ${policyFillStatus}    'Failed to fill Policy Number field.'
+
+    ${classClick}=    Run Keyword And Return Status    Click    ${loc_ClassOf_Business}
+    Should Be True    ${classClick}    'Failed to click Class of Business dropdown.'
+    ${classElement}=    Catenate    SEPARATOR=    ${loc1_Select_Type}    ${policy_Info['ClassOfBusiness']}    ']    
+    ${classSelect}=    Run Keyword And Return Status    Click    ${classElement}
+    Should Be True    ${classSelect}    'Failed to select Class of Business.'
+
+    ${placementClick}=    Run Keyword And Return Status    Click    ${Loc_Placement_Button}
+    Should Be True    ${placementClick}    'Failed to click Placement Type dropdown.'
+    ${placementElement}=    Catenate    SEPARATOR=    ${loc1_Select_Type}    ${policy_Info['PlacementType']}    ']    
+    ${placementSelect}=    Run Keyword And Return Status    Click    ${placementElement}
+    Should Be True    ${placementSelect}    'Failed to select Placement Type.'
+
+    Log    Policy Information entered successfully.    INFO
 
 # Verify Policy Information Details from Summary Tab
 #     [Documentation]    the Given Policy Informaton Should be listed
